@@ -2,13 +2,17 @@
 
 [Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate [D3](https://d3js.org) visualizations into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) and [code of the demo](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
 
+## Browser compatibility:
+
+The plugin works best when slides are presented via Chrome and Safari. If the use of Firefox cannot be avoided, discard any responsive sizing features in the D3 code to prevent alteration in the rendering of the visualization.
+
 ## Principal features:
 
 The development of this plugin has been inspired by [Reveal.js plugin - d3js](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
 - the D3 visualizations are loaded only when the slide hosting them becomes active.
 - the D3 visualizations are removed when the slide is not active anymore (next slide) so the browser is not overloaded by running multiples iframes (this behavior [can be configured](#configuration)).
 - this plugin support multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
-- the triggering of the transitions for the visualizations is fully compatible with Reveal.js [`data-fragment-index`](https://github.com/hakimel/reveal.js/#fragments) feature. 
+- the triggering of the transitions for the visualizations is fully compatible with Reveal.js [`data-fragment-index`](https://github.com/hakimel/reveal.js/#fragments) feature.
 
 ## Installation
 
@@ -132,4 +136,3 @@ Reveal.initialize({
 
 });
 ```
-
