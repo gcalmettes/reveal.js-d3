@@ -193,7 +193,7 @@ var Reveald3 = window.Reveald3 || (function(){
             'scrolling': 'no',
             'style': 'margin: 0px; width: 100%; height: 100%; max-width: 100%; max-height: 100%; z-index: 1;'
         }
-        let iframe = document.createElement('iframe')
+        const iframe = document.createElement('iframe')
         for (let i=0; i<Object.keys(iframeConfig).length; i++){
             const key = Object.keys(iframeConfig)[i]
             iframe.setAttribute(key, iframeConfig[key])
@@ -219,7 +219,7 @@ var Reveald3 = window.Reveald3 || (function(){
             //////////////////////////////////////////////////////////////////////////
 
             // get all the visualization steps from all the visualizations on the slide
-            let nodeList = d3.selectAll('iframe')._groups[0] // all the iframes hosting viz
+            let nodeList = slide.querySelectorAll('iframe')
             let allVisualizationSteps = []
             for (let i=0; i<nodeList.length; i++){
                 const iframe = nodeList[i];
@@ -239,24 +239,22 @@ var Reveald3 = window.Reveald3 || (function(){
 
 
             // add spans fragments to trigger visualization steps
-            // need update-enter-merge-exit pattern since this is triggered
-            // every time one of all the visualizations on the slides has finished loaded
-            let fragmentSpans = d3.select(slide).selectAll('.fragment.visualizationStep')
-                .data(spansToCreate);
-
-            fragmentSpans.attr('class', 'fragment visualizationStep')
-
-            let fragmentSpansEnter = fragmentSpans
-                .enter()
-                .append('span')
-                    .attr('class', 'fragment visualizationStep')
-                    .attr('data-fragment-index', d => d);
-
-            let fragmentSpansMerge = fragmentSpansEnter
-                .merge(fragmentSpans)
-                    .attr('data-fragment-index', d => d);
-
-            let fragmentSpansExit = fragmentSpans.exit().remove();
+            let fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
+            if (fragmentSpans.length < spansToCreate.length){
+                const nSpansToCreate = spansToCreate.length - fragmentSpans.length
+                console.log(nSpansToCreate)
+                for (let i=0; i<nSpansToCreate; i++){
+                    const spanFragment = document.createElement('span')
+                    spanFragment.setAttribute('class', 'fragment visualizationStep')
+                    slide.appendChild(spanFragment)
+                }        
+            }
+            fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
+            console.log(fragmentSpans)
+            for (let i=0; i<spansToCreate.length; i++){
+                fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
+            }
+            // console.log(fragmentSpans2, spansToCreate)
 
         }); //onload
 
