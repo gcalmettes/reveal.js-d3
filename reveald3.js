@@ -2,6 +2,9 @@
  * reveal.js plugin to integrate d3.js visualizations into slides and trigger transitions supporting data-fragment-index
  */
 var Reveald3 = window.Reveald3 || (function(){
+    // check if configurations need to be overwritten
+    const config = Reveal.getConfig();
+    const options = config.reveald3 || {}; 
 
     // propagate keydown when focus is on iframe (child)
     // https://stackoverflow.com/a/41361761/2503795
@@ -28,27 +31,29 @@ var Reveald3 = window.Reveald3 || (function(){
         handleSlideVisualizations(event)
     });
 
-     Reveal.addEventListener('slidechanged', function( event ) {
-        // For performance, dump iframe visualization containers once the
-        // slide has changed so the browser is not overloaded with running iframes
-        let previousSlide = event.previousSlide
-        let allIframes = []
-        if (previousSlide){
-            const idx = Reveal.getIndices(previousSlide)
-            const iframeSlide = Array.prototype.slice.call(previousSlide.querySelectorAll('iframe'))
-            const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
+    if (!options.keepIframe){
 
-            // filter out non "iframe-visualization" iframes
-            allIframes = [].concat(...[iframeSlide, iframeBackground])
-            allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
+        Reveal.addEventListener('slidechanged', function( event ) {
+            // For performance, dump iframe visualization containers once the
+            // slide has changed so the browser is not overloaded with running iframes
+            let previousSlide = event.previousSlide
+            let allIframes = []
+            if (previousSlide){
+                const idx = Reveal.getIndices(previousSlide)
+                const iframeSlide = Array.prototype.slice.call(previousSlide.querySelectorAll('iframe'))
+                const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
 
-            for (let i=0; i<allIframes.length; i++){
-                allIframes[i].remove()
+                // filter out non "iframe-visualization" iframes
+                allIframes = [].concat(...[iframeSlide, iframeBackground])
+                allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
+
+                for (let i=0; i<allIframes.length; i++){
+                    allIframes[i].remove()
+                }
             }
-        }
         
-    });
-
+        });
+    }
 
     function handleSlideVisualizations(event){
         let allContainers = getAllContainers(event.currentSlide)

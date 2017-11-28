@@ -109,9 +109,15 @@ Reveal.initialize({
     progress: true,
     history: true,
     center: false,
-
-    // transition options: none/fade/slide/convex/concave/zoom
     transition: 'fade',
+
+    //optional configuration for reveald3
+    // if true, do not drop the iframe once the slide is not active anymore
+    // Default is false since keeping the iframes running can overwhelm the browser
+    // depending of the complexity of the visualization
+    // reveald3: {
+    //     keepIframe: true // default: false
+    // },
 
     // Optional reveal.js plugins
     dependencies: [
