@@ -6,7 +6,7 @@
 
 The development of this plugin has been inspired by [Reveal.js plugin - d3js](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
 - the D3 visualizations are loaded only when the slide hosting them becomes active.
-- the D3 visualizations are removed when the slide not active anymore (next slide) so the browser is not overloaded by running multiples iframes (this behavior [can be configured](#configuration)).
+- the D3 visualizations are removed when the slide is not active anymore (next slide) so the browser is not overloaded by running multiples iframes (this behavior [can be configured](#configuration)).
 - this plugin support multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
 - the triggering of the transitions for the visualizations is fully compatible with Reveal.js [`data-fragment-index`](https://github.com/hakimel/reveal.js/#fragments) feature. 
 
@@ -20,7 +20,7 @@ The development of this plugin has been inspired by [Reveal.js plugin - d3js](ht
 
 1. Copy the file `reveald3.js` into a local folder, i.e. the `plugin/` folder of your Reveal.js presentation.
 
-2. Add [`D3`](https://d3js.org) and the plugin to the presentation dependencies
+2. Add [`D3`](https://d3js.org) and the `reveald3` plugin to the presentation dependencies:
 
 ```javascript
 Reveal.initialize({
@@ -61,7 +61,7 @@ To embed more than one visualization, simply create multiple containers:
 </section>
 ```
 
-You can also embed the visualization in the background of the slide by adding the `fig-container` class to the `section` element of your Reveal.js code.
+You can also embed the visualization in the background of the slide by adding the `fig-container` class directly to the `section` element of your Reveal.js code.
 
 ```html
 <section class="fig-container"
@@ -74,7 +74,7 @@ You can also embed the visualization in the background of the slide by adding th
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
-To add transitions to a visualization, simply create a global (`var`) variable in the `D3` code of your `html` file with the name `_transitions`, and assign to it an array of javascript objects defining the transitions functions. Each javascript object has one obligatory `name:value` pair as well as two optional `name:value` pairs:
+To add transitions to a visualization, simply create a global (`var`) variable in the `D3` code of your `html` file with the name `_transitions`, and assign to it an array of javascript objects defining the transitions functions for each fragment steps. Each javascript object has one obligatory `name:value` pair as well as two optional `name:value` pairs:
 - `transitionForward` (obligatory): defines a function for the transition from the current state TO the next state of the visualization
 - `transitionBackward` (optional): defines a specific function to be ran for the transition FROM the next state to the current state when user navigates back. If no `transitionBackward` is specified, this will take the `transitionForward` value by default so the original state will be reverted. `transitionBackward` can also take a `"none"` value to specify that no animation/transition have to be ran for the reverse transition.
 - `index` (optional): defines the `data-fragment-index` state at which the transition has to be triggered. If no `index` is defined, the transitions will be played in the order they appear in the `_transitions` array, with the first one getting the `0` index (first fragment played).
