@@ -1,0 +1,128 @@
+<html>
+<head>
+    <link rel="stylesheet" href="reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="reveal.js/css/theme/black.css">
+    <link rel="stylesheet" href="reveal.js/lib/css/zenburn.css" />
+    <link rel="stylesheet" href="reveal.js/css/custom-gc.css" />
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<section>
+    <h3>Embed interactive D3 visualizations</h3>
+    <div class="row no-margin-top">
+        <div class="col-50">
+            <p>Embed D3 visualizations into slides, and keep the original interactivity.</p>
+            <p><span class="u">Visualization:</span><br><a href='https://bl.ocks.org/Fil/63366253a5d2f00640c15b096c29a38c' target='_blank'>Eclipses path</a> by Philippe Riviere</p>
+            <p>(click on the globe and play with it!)</p>
+        </div>
+        <div class="col-50 fig-container no-margin-top" data-file="d3-fig/eclipses.html">
+    </div>
+  </div>
+</section>
+
+<section class="fig-container"
+         data-file="d3-fig/collision-detection.html">
+    <h3>Embed interactive D3 visualizations</h3>
+    <div class='fancy-border' style="position: absolute; width:80%; left: 100px; top: 250px">
+        You can also embed visualization into the background
+    </div>
+    <p style="position: absolute; left: 100px; top: 570px">
+        (press right/left arrows to trigger visualization transitions)
+    </p>
+    <p style="position: absolute; left: 100px; top: 620px">
+        Visualization adpated from <a href='https://bl.ocks.org/mbostock/3231298' target='_blank'>Collision detection</a> by Mike Bostock</p>
+</section>
+
+
+<section>
+    <h3>Multi-visualizations are supported</h3>
+    <div class="row no-margin-top">
+        <div class="col-50 no-margin-top">
+            <p class="no-margin-top small">
+            <a href='https://bl.ocks.org/olearym/ec27b9ac1bf0da42ed8a0d533181693b' target='_blank'>Gooey effect - Hexagon</a> by Nadieh Bremer</p>
+        <div class="fig-container no-margin-top" data-file="d3-fig/gooey.html"></div>
+        </div>
+        <div class="col-50 no-margin-top">
+            <p class="no-margin-top small">
+            <a href='https://bl.ocks.org/olearym/ec27b9ac1bf0da42ed8a0d533181693b' target='_blank'>Modular Multiplication Circle</a> by Megan O'Leary</p>
+        <div class="fig-container no-margin-top" data-file="d3-fig/modular-multiplication.html"></div>
+        </div>
+</section>
+
+<section>
+    <h3>Independant transitions</h3>
+    <div class="row no-margin-top">
+        <div class="col-50 no-margin-top">
+            <p class="no-margin-top small">
+                <a href='https://bl.ocks.org/mbostock/4165404' target='_blank'>Rainbow worm</a> by Mike Bostock <br>
+                <span class="big">(transition on <span class="warning">1</span> and <span class="warning">3</span>)</span>
+            </p>
+            <div class="fig-container no-margin-top" data-file="d3-fig/rainbow.html"></div>
+        </div>
+        <div class="col-50 no-margin-top">
+            <p class="no-margin-top small">
+                Simple bar graph <br>
+                <span class="big">(transition on <span class="warning">2</span> and <span class="warning">3</span>)</span></p>
+        <div class="fig-container no-margin-top" data-file="d3-fig/bar-chart.html"></div>
+    </div>
+    <div class="no-margin-top" style="position: absolute; top: 550px">
+        <p>
+            Stage transitions independently for each visualization using Reveal.js 'data-fragement-index'
+        </p>
+    </div>
+
+       
+</section>
+
+<section>
+    <h3>Interaction with other elements</h3>
+
+    <div class="row no-margin-top">
+        <div class="col-50 no-margin-top left">
+            <p class="small">You can interect with the embedded visualization using elements from the slide.</p>
+            <p class="small">Click on the button to change the color of the nodes to yellow</p>
+            <button class="btn-large btn-warning" id="recolorButton">Recolorize</button>
+            <p class="small">Note: the staged transitions are still active (press right arrow or space)</p>
+        </div>
+        <div class="col-50 no-margin-top">
+        <div class="fig-container no-margin-top" data-file="d3-fig/collision-detection.html"></div>
+    </div>
+    
+
+</section>
+
+
+
+</div> <!-- slides -->
+</div> <!-- Reveal -->
+
+<script src="reveal.js/lib/js/head.min.js"></script>
+<script src="reveal.js/js/reveal.js"></script>
+<script>
+
+// Full list of configuration options available at:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+    controls: false,
+    progress: true,
+    history: true,
+    center: false,
+
+    // transition options: none/fade/slide/convex/concave/zoom
+    transition: 'fade',
+
+    // Optional reveal.js plugins
+    dependencies: [
+        // d3.js library and plugin
+        { src: 'https://d3js.org/d3.v4.min.js' },
+        // { src: 'js/d3.min.js' },
+        { src: '../reveald3.js' },
+
+    ]
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!-- Source: modified from https://bl.ocks.org/mbostock/3231298 -->
+
+<!DOCTYPE html>
+<body>
+<!-- <script src="//d3js.org/d3.v4.min.js"></script> -->
+<script src='https://d3js.org/d3.v4.min.js'></script>
+<script>
+
+    const width = window.innerWidth;
+    const height = Math.min(500, window.innerHeight);
+
+    const nNodes = 200
+    let nodes = d3.range(nNodes).map(function() { let radius = Math.random() * 12 + 4;return {r: radius, originalRadius: radius}; })
+    const root = nodes[0];
+    const color = d3.scaleOrdinal().range(d3.schemeCategory20)
+
+    root.radius = 0;
+    root.fixed = true;
+
+    const forceX = d3.forceX(width / 2).strength(0.015)
+    const forceY = d3.forceY(height / 2).strength(0.015)
+
+    
+    const force = d3.forceSimulation()
+      .velocityDecay(0.2)
+      .force("x", forceX)
+      .force("y", forceY)
+      .force("collide", d3.forceCollide().radius(d => {
+        if(d === root){
+          return Math.random() * 20 + 60;
+        }
+        return d.r + 0.5;
+      })
+      .iterations(5))
+      .nodes(nodes)
+      .on("tick", ticked);
+
+    const svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    const nodeCircles = svg.selectAll("circle")
+        .data(nodes.slice(1))
+        .enter().append("circle")
+        .attr("r", function(d) { return d.r; })
+        .style("fill", function(d, i) { return color(i % 3); });
+
+    function ticked(e) {
+        svg.selectAll("circle")
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+    };
+
+    svg.on("mousemove", function() {
+        let p1 = d3.mouse(this);
+        root.fx = p1[0];
+        root.fy = p1[1];
+        force.alphaTarget(0.3).restart();//reheat the simulation
+    });
+
+    function shuffleColor(n){
+      d3.selectAll("circle")
+          .transition().duration(500)
+          .style("fill", (d, i) => color(i % n))
+    }
+
+    function resize(min, max){
+      d3.selectAll("circle")
+        .transition().duration(500)
+        .attr("r", d => d.originalRadius +  Math.random() * (max - min))
+    }
+
+    function colorize(color){
+      d3.selectAll("circle")
+          .transition().duration(500)
+          .style("fill", (d, i) => color)
+    }
+
+    let slideNode = Array.prototype.slice.call(window.parent.document.querySelectorAll('section')).filter(d => d.className.includes("present"))[0]
+    let button = d3.select(slideNode)
+      .select('#recolorButton');
+
+    button.on('click', function() {
+      colorize("yellow")
+    })
+
+    var _transitions = [
+      {
+        transitionForward: () => shuffleColor(10),
+        transitionBackward: () => shuffleColor(3),
+        index: 0
+      },
+      {
+        transitionForward: () => resize(0.1, 6),
+        transitionBackward: () => resize(1, 1),
+        index: 1
+      },
+    ]
+</script>
+
+

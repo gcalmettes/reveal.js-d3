@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/combine/npm/d3,npm/topojson"></script>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+  
+	<style>
+    body {margin:0;}
+    svg {
+      cursor: move; /* fallback if grab cursor is unsupported */
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
+    }
+    svg.dragging {
+      cursor: grabbing;
+      cursor: -moz-grabbing;
+      cursor: -webkit-grabbing;
+    }
+    #sphere {
+      fill: #eff;
+    }
+    textPath {
+      font-weight: bold;
+      font-family: sans-serif;
+      font-size: large;
+    }
+	</style>
+</head>
+<body>
+  <script>
+const margin = 5;
+
+const svg = d3.select("body").append("svg");
+
+const sphere = svg
+  .append("path")
+  .attr("id", "sphere")
+  .datum({ type: "Sphere" });
+
+const land = svg.append("path");
+
+const eclipsesg = svg.append("g").classed("eclipses", true);
+
+const label = svg
+  .append("text")
+  .attr("dy", -2)
+  .append("textPath")
+  .style("text-anchor", "middle");
+
+const projection = d3
+  .geoOrthographic() //   .geoGnomonic().clipAngle(70)
+  .rotate([-80, -35]);
+
+const path = d3.geoPath().projection(projection);
+
+const color = d3.scaleOrdinal(d3.schemeCategory20);
+
+function draw() {
+  const width = Math.min(960, window.innerWidth),
+    height = Math.min(500, window.innerHeight);
+  projection.fitExtent([[margin, margin], [width - margin, height - margin]], {
+    type: "Sphere"
+  });
+  svg.attr("width", width).attr("height", height);
+  svg.selectAll("path")
+    .attr("d", path);
+  eclipsesg.selectAll('path').style('fill-opacity', 0.6);
+
+  const tp = d3.select(label.attr("xlink:href"));
+  if (!tp.size()) return;
+  // find which way is up
+  tp.attr('d', path).style('fill-opacity', 1);
+  const l = tp.node().getTotalLength(),
+    up = tp.node().getPointAtLength(0.26 * l).x > tp.node().getPointAtLength(0.24 * l).x;
+  label
+    .attr("startOffset", up ? "25%" : "75%")
+    .text(d => (l > 360 ? d : l > 180 ? d.substring(0, 4) : ""));
+}
+
+// "https://unpkg.com/world-atlas/world/110m.json"
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas/world/110m.json", (err, world) => {
+  land.datum(topojson.feature(world, world.objects.land))
+  .attr('opacity', 0.01)
+  .transition()
+  .duration(2000)
+  .attr('opacity', 1);
+
+  draw();
+});
+
+d3.json("eclipses.json", (err, eclipses) => {
+  eclipses = topojson.feature(eclipses, eclipses.objects.eclipses);
+
+  eclipsesg
+    .selectAll("path")
+    .data(eclipses.features)
+    .enter()
+    .append("path")
+    .style("fill", (d, i) => color(i))
+    .attr("id", (d, i) => "d" + i)
+    .on("mouseover click", function(d, i) {
+      label
+        .attr("xlink:href", "#d" + i)
+        .datum(d.properties.Date)
+        .style("fill", color(i));
+    });
+  draw();
+});
+
+draw();
+</script>
+
+<!-- d3.inertia starts here -->
+<script src="https://cdn.jsdelivr.net/combine/npm/versor,npm/d3-inertia"></script>
+
+<script>
+var inertia = d3.geoInertiaDrag(svg, draw);
+d3.timer(function(e) {
+  if (inertia.timer) return;
+  var rotate = projection.rotate();
+  projection.rotate([rotate[0] + 0.12, rotate[1], rotate[2]]);
+  draw();
+});
+</script>
+</body>
+</html>
