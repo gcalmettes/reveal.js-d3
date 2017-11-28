@@ -178,30 +178,28 @@ var Reveald3 = window.Reveald3 || (function(){
     }
 
     function initialize(element, file, slideFragmentSteps) {
-        //current current slide and container to host the visualization
+        // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
 
-        //continue only if iframe hasn't been created already for this container
+        // continue only if iframe hasn't been created already for this container
         const iframeList = container.querySelectorAll('iframe')
         if (iframeList.length>0) return;
 
-        // embed html files as iframe
-        // allowfullscreen mozallowfullscreen webkitallowfullscreen style="width: 100%; height: 100%; max-height: 100%; max-width: 100%;"
-        const iframeContainer = d3.select(container)
-
-        const iframe = iframeContainer.append('iframe')
-                .attr('class', 'iframe-visualization')
-                // .attr('id', id)
-                .attr('sandbox', 'allow-popups allow-scripts allow-forms allow-same-origin')
-                .attr('src', file)
-                .attr('scrolling', 'no')
-                .style('margin', '0 0 0 0')
-                .style('width', '100%')
-                .style('height', '100%')
-                .style('max-width', '100%')
-                .style('max-height', '100%')
-                .style('z-index', 1)
-            .node();
+        // create iframe to embed html file
+        let iframeConfig = {
+            'class': 'iframe-visualization',
+            'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
+            'src': file,
+            'scrolling': 'no',
+            'style': 'margin: 0px; width: 100%; height: 100%; max-width: 100%; max-height: 100%; z-index: 1;'
+        }
+        let iframe = document.createElement('iframe')
+        for (let i=0; i<Object.keys(iframeConfig).length; i++){
+            const key = Object.keys(iframeConfig)[i]
+            iframe.setAttribute(key, iframeConfig[key])
+        }
+        // add iframe as child to div.fig-container
+        container.appendChild(iframe)
 
         //event to be triggered once iframe load is complete
         iframe.addEventListener("load", function () {
