@@ -1,0 +1,54 @@
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-lite/2.0.0-beta.3/vega-lite.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vega/3.0.0-beta.31/vega.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-embed/3.0.0-beta.14/vega-embed.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vega-tooltip/0.3.3/vega-tooltip.min.css"></link>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vega-tooltip/0.3.3/vega-tooltip.min.js"></script>
+</head>
+
+<body>
+  <div id="vis-scatter"></div>
+  <script>
+    var vlSpec = {
+      "width": 400,
+      "height": 400,
+  		"$schema": "https://vega.github.io/schema/vega-lite/v2.json",
+  		"data": {"url": "https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/cars.json"},
+  		"mark": "circle",
+  		"encoding": {
+    		"x": {"field": "Horsepower", "type": "quantitative"},
+    		"y": {"field": "Miles_per_Gallon", "type": "quantitative"}
+  		},
+      "config": {
+        "axis": {
+          "titleColor": "white",
+          "labelColor": "white",
+          "tickColor": "white",
+          "titleFontSize": 22,
+
+        },
+        "circle": {
+          "color": "yellow",
+          "size": 100
+        }
+      },
+		}
+
+    var opt = {
+      mode: "vega-lite",
+      actions: false
+    };
+    vega.embed("#vis-scatter", vlSpec, opt, function (error, result) {
+      var tooltipOption = {
+    		showAllFields: false,
+    		fields: [
+      		{ field: "Name" },
+      		{ field: "Horsepower" },
+      		{ field: "Miles_per_Gallon", title: "Miles per Gallon" }
+    		]
+  		};
+      vegaTooltip.vegaLite(result.view, vlSpec, tooltipOption);
+    });
+  </script>
+</body>
