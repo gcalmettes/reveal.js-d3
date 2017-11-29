@@ -65,7 +65,7 @@
 
     const container = document.body.appendChild(document.createElement('div'));
     ReactDOM.render(<Semiotic.NetworkFrame
-      size={[ 400,400 ]}
+      size={[ 300,300 ]}
       edges={dematrixifiedEdges}
       nodeStyle={(d,i) => ({ fill: colors[d.index], stroke: "white" })}
       edgeStyle={(d,i) => ({ fill: colors[d.target.index], stroke: "white", opacity: 0.5 })}

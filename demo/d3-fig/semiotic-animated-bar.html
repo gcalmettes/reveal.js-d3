@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/@babel/standalone@7.0.0-beta.32/babel.min.js"></script>
+  <script src="https://unpkg.com/react@16.1.1/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@16.1.1/umd/react-dom.production.min.js"></script>
+  
+  <script src="https://unpkg.com/semiotic@1.2.8/dist/semiotic.js"></script>
+  
+  <style>
+    body { margin:0 ;position:fixed;top:20px;right:20;bottom:20;left:20; }
+
+    .tooltip-content {
+      background: white;
+      border: 1px solid black;
+      color: black;
+      padding: 10px;
+      z-index: 99;
+      min-width: 120px;
+    }
+
+  .tooltip-content:before {
+    background: white;
+    content: '';
+    padding: 0px;
+    transform: rotate(45deg);
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    z-index: 99;
+  }
+
+  </style>
+</head>
+
+<body>
+  <script type="text/babel">
+    const barChartData = [
+      { user: "Jason", tweets: 10, retweets: 5, favorites: 15 },
+      { user: "Susie", tweets: 5, retweets: 100, favorites: 100 },
+      { user: "Matt", tweets: 20, retweets: 25, favorites: 50 },
+      { user: "Betty", tweets: 30, retweets: 20, favorites: 10 }
+    ]
+
+    const barChartData2 = [
+      { user: "Jason", tweets: 20, retweets: 5, favorites: 15 },
+      { user: "Susie", tweets: 15, retweets: 100, favorites: 100 },
+      { user: "Matt", tweets: 5, retweets: 25, favorites: 50 },
+      { user: "Betty", tweets: 10, retweets: 20, favorites: 10 }
+    ] 
+
+
+    var _transitions = [
+      {
+        transitionForward: () => changeData(1),
+        transitionBackward: () => changeData(0)      }
+    ]
+
+    let status = 0
+
+    function checkData(status){
+      return status == 0 ? barChartData : barChartData2
+    }
+  
+    function changeData(newStatus){
+      status = newStatus
+      renderData()
+    }
+
+
+    const container = document.body.appendChild(document.createElement('div'));
+
+    function renderData(){
+      return ReactDOM.render(<Semiotic.ORFrame
+              size={[300, 300]}
+              data={checkData(status)}
+              oAccessor={"user"}
+              rAccessor={"tweets"}
+              style={{ fill: "#00a2ce", stroke: "white" }}
+              type={"bar"}
+              oLabel={true}
+            />, container);
+  }
+
+  renderData()
+
+  </script>
+</body>
