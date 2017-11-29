@@ -60,19 +60,26 @@
 
     function shuffleColor(n){
       d3.selectAll("circle")
-          .transition().duration(500)
+          .transition().duration(400)
           .style("fill", (d, i) => color(i % n))
     }
 
     function resize(min, max){
       d3.selectAll("circle")
-        .transition().duration(500)
+        .transition().duration(400)
         .attr("r", d => d.originalRadius +  Math.random() * (max - min))
+    }
+
+    function shufleColorAndResize(n, min, max){
+      d3.selectAll("circle")
+          .transition().duration(400)
+          .style("fill", (d, i) => color(i % n))
+          .attr("r", d => d.originalRadius +  Math.random() * (max - min))
     }
 
     function colorize(color){
       d3.selectAll("circle")
-          .transition().duration(500)
+          .transition().duration(400)
           .style("fill", (d, i) => color)
     }
 
@@ -91,8 +98,8 @@
         index: 0
       },
       {
-        transitionForward: () => resize(0.1, 6),
-        transitionBackward: () => resize(1, 1),
+        transitionForward: () => shufleColorAndResize(10, 0.1, 6),
+        transitionBackward: () => shufleColorAndResize(10, 1, 1),
         index: 1
       },
     ]
