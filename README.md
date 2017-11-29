@@ -4,7 +4,7 @@
 
 ## Browser compatibility:
 
-The plugin works best when slides are presented via Chrome and Safari. If the use of Firefox cannot be avoided, discard any responsive sizing features in the D3 code to prevent alteration in the rendering of the visualization.
+The plugin should work with the latest versions of Chrome, Firefox and Safari.
 
 ## Principal features:
 
