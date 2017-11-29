@@ -4,7 +4,7 @@
 var Reveald3 = window.Reveald3 || (function(){
     // check if configurations need to be overwritten
     const config = Reveal.getConfig();
-    const options = config.reveald3 || {}; 
+    const options = config.reveald3 || {};
 
     // propagate keydown when focus is on iframe (child)
     // https://stackoverflow.com/a/41361761/2503795
@@ -51,7 +51,7 @@ var Reveald3 = window.Reveald3 || (function(){
                     allIframes[i].remove()
                 }
             }
-        
+
         });
     }
 
@@ -61,12 +61,12 @@ var Reveald3 = window.Reveald3 || (function(){
         if(!allContainers.length) return;
         //fragments steps already in slide
         let slideFragmentSteps = getUniqueFragmentIndices(event)
-        
+
         initializeAllVisualizations(allContainers, slideFragmentSteps)
-        
+
         if (!options.dropLastState){
             // If the previous slide is a slide further in the deck (i.e. we come back to
-            // slide from the next slide), trigger the last fragment transition to get the 
+            // slide from the next slide), trigger the last fragment transition to get the
             // the last state
             const idxCurrent = Reveal.getIndices(event.currentSlide)
             const idxPrevious = Reveal.getIndices(event.previousSlide)
@@ -85,7 +85,7 @@ var Reveald3 = window.Reveald3 || (function(){
                     })
                 }
             }
-        }      
+        }
     }
 
     function getAllContainers(slide){
@@ -156,10 +156,10 @@ var Reveald3 = window.Reveald3 || (function(){
 
         // Generate data-fragment-index list of spans to be added to slide
         const nSlideFragmentSteps = slideFragmentSteps.length
-        
+
         const extraIndex = uniqueAllVisualizationIndices.map(d => d>nSlideFragmentSteps-1)
         const extraSteps = extraIndex.reduce((a, b) => a+b, 0);
-        
+
         let fragmentIndexToCreate
         if (extraSteps==0){
             fragmentIndexToCreate = []
@@ -233,7 +233,7 @@ var Reveald3 = window.Reveald3 || (function(){
             'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
             'src': file,
             'scrolling': 'no',
-            'style': 'margin: 0px; width: 100%; height: 100%; max-width: 100%; max-height: 100%; z-index: 1;'
+            'style': 'margin: 0px; width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; z-index: 1;'
         }
         const iframe = document.createElement('iframe')
         for (let i=0; i<Object.keys(iframeConfig).length; i++){
@@ -287,7 +287,7 @@ var Reveald3 = window.Reveald3 || (function(){
                     const spanFragment = document.createElement('span')
                     spanFragment.setAttribute('class', 'fragment visualizationStep')
                     slide.appendChild(spanFragment)
-                }        
+                }
             }
             fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
             for (let i=0; i<spansToCreate.length; i++){
@@ -341,11 +341,11 @@ var Reveald3 = window.Reveald3 || (function(){
             if ((iframe.transitionSteps) && (iframe.transitionSteps[currentStep])) {
                (iframe.transitionSteps[currentStep].transitionForward || Function)()
             }
-            
-        } else {            
+
+        } else {
             if ((iframe.transitionSteps) && (iframe.transitionSteps[currentStep])) {
                (iframe.transitionSteps[currentStep].transitionBackward || Function)()
-            } 
+            }
         }
     }
 
@@ -355,7 +355,7 @@ var Reveald3 = window.Reveald3 || (function(){
 
         // forward transition
         const slide = event.fragment.closest('section')
-        
+
         // get all iframe embedding visualisations
         let allIframes = getAllIframes(slide)
 
