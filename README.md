@@ -1,4 +1,4 @@
-# Reveal.js-d3
+# Reveal.js-d3 (reveald3)
 
 [Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate [D3](https://d3js.org) visualizations into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) and [code of the demo](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
 
@@ -19,7 +19,25 @@ The development of this plugin has been inspired by [Reveal.js-d3js-plugin](http
 
 ### npm
 
-(coming soon)
+1. Download and install the package in your project:
+
+```
+npm install --save reveald3
+```
+
+2. Add the plugin to the dependencies in your presentation, as below: 
+
+```javascript
+Reveal.initialize({
+    // ...
+    
+    dependencies: [
+        // ... 
+      
+        { src: 'node_modules/reveald3/reveald3.js' }
+    ]
+});
+```
 
 ### Manual
 
