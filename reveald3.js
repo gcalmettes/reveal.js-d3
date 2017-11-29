@@ -61,6 +61,7 @@ var Reveald3 = window.Reveald3 || (function(){
         });
     }
 
+
     function handleSlideVisualizations(event){
         const currentSlide = event.currentSlide
         let allContainers = getAllContainers(currentSlide)
@@ -71,25 +72,32 @@ var Reveald3 = window.Reveald3 || (function(){
         initializeAllVisualizations(allContainers, slideFragmentSteps)
 
         if (!options.dropLastState){
-            // If the previous slide is a slide further in the deck (i.e. we come back to
-            // slide from the next slide), trigger the last fragment transition to get the
-            // the last state
-            const idxCurrent = Reveal.getIndices(event.currentSlide)
-            const idxPrevious = Reveal.getIndices(event.previousSlide)
-            if ((idxCurrent.h<idxPrevious.h) || idxCurrent.v<idxPrevious.v){
-                const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
-                if (allFragments.length==0) return
-                let allFragmentsIndices = []
-                for (let i=0; i< allFragments.length; i++){
-                    allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
-                }
-                const allIframes = getAllIframes(currentSlide)
-                for (let i=0; i<allIframes.length; i++){
-                    const iframe = allIframes[i]
-                    iframe.addEventListener("load", function () {
-                        triggerAllTransitions(allIframes, Math.max.apply(null, allFragmentsIndices), 'forward')
-                    })
-                }
+            // is it a navigation back from other slide event?
+            triggerLastState(event)
+        }
+    }
+
+    function triggerLastState(event){
+        // If the previous slide is a slide further in the deck (i.e. we come back to
+        // slide from the next slide), trigger the last fragment transition to get the
+        // the last state
+        const currentSlide = event.currentSlide
+        const idxCurrent = Reveal.getIndices(currentSlide)
+        const idxPrevious = Reveal.getIndices(event.previousSlide)
+        if ((idxCurrent.h<idxPrevious.h) || idxCurrent.v<idxPrevious.v){
+            const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
+            if (allFragments.length==0) return
+            let allFragmentsIndices = []
+            for (let i=0; i< allFragments.length; i++){
+                allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
+            }
+            const allIframes = getAllIframes(currentSlide)
+            for (let i=0; i<allIframes.length; i++){
+                const iframe = allIframes[i]
+                iframe.addEventListener("load", function () {
+                    console.log("event fired")
+                    triggerAllTransitions(allIframes, Math.max.apply(null, allFragmentsIndices), 'forward')
+                })
             }
         }
     }
