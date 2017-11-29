@@ -64,23 +64,11 @@
           .style("fill", (d, i) => color(i % n))
     }
 
-    function resize(min, max){
-      d3.selectAll("circle")
-        .transition().duration(400)
-        .attr("r", d => d.originalRadius +  Math.random() * (max - min))
-    }
-
     function shufleColorAndResize(n, min, max){
       d3.selectAll("circle")
           .transition().duration(400)
           .style("fill", (d, i) => color(i % n))
           .attr("r", d => d.originalRadius +  Math.random() * (max - min))
-    }
-
-    function colorize(color){
-      d3.selectAll("circle")
-          .transition().duration(400)
-          .style("fill", (d, i) => color)
     }
 
     let slideNode = Array.prototype.slice.call(window.parent.document.querySelectorAll('section')).filter(d => d.className.includes("present"))[0]
@@ -93,13 +81,12 @@
 
     var _transitions = [
       {
-        transitionForward: () => shuffleColor(10),
-        transitionBackward: () => shuffleColor(3),
+        transitionForward: () => shufleColorAndResize(10, 1, 1),
+        transitionBackward: () => shufleColorAndResize(3, 1, 1),
         index: 0
       },
       {
         transitionForward: () => shufleColorAndResize(10, 0.1, 6),
-        transitionBackward: () => shufleColorAndResize(10, 1, 1),
         index: 1
       },
     ]
