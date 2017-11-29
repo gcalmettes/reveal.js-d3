@@ -1,6 +1,6 @@
 # Reveal.js-d3 (reveald3)
 
-[Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate [D3](https://d3js.org) visualizations into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) and [code of the demo](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
+[Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate [D3](https://d3js.org) visualizations (or any javascript-based visualization, like [semiotic](https://emeeks.github.io/semiotic/#/) visualizations for example) into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) and [code of the demo](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
 
 ## Browser compatibility:
 
@@ -60,9 +60,9 @@ Reveal.initialize({
 
 ## Usage:
 
-### Adding d3.js visualizations to slides
+### Adding visualization(s) to a slide
 
-To add a d3.js visualizations to your presentation, simply add a container DOM element (`<div>`, `<span>`, etc ...) with the class `fig-container`, and give it a `data-file` attribute with the path of the html file hosting your d3.js visualization that you want to embed.
+To add a d3.js (or any javascript-based) visualizations to your presentation, simply add a container DOM element (`<div>`, `<span>`, etc ...) with the class `fig-container`, and give it a `data-file` attribute with the path of the html file hosting the javascript-based visualization that you want to embed.
 
 ```html
 <section>

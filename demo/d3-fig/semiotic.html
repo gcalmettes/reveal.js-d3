@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/@babel/standalone@7.0.0-beta.32/babel.min.js"></script>
+  <script src="https://unpkg.com/react@16.1.1/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@16.1.1/umd/react-dom.production.min.js"></script>
+  
+  <script src="https://unpkg.com/semiotic@1.2.8/dist/semiotic.js"></script>
+  
+  <style>
+    body { margin:0 ;position:fixed;top:20px;right:20;bottom:20;left:20; }
+
+    .tooltip-content {
+      background: white;
+      border: 1px solid black;
+      color: black;
+      padding: 10px;
+      z-index: 99;
+      min-width: 120px;
+    }
+
+  .tooltip-content:before {
+    background: white;
+    content: '';
+    padding: 0px;
+    transform: rotate(45deg);
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    z-index: 99;
+  }
+
+  </style>
+</head>
+
+<body>
+  <script type="text/babel">
+    const dematrixifiedEdges = [
+      { source: "a", target: "a", value: 11975},
+      { source: "a", target: "b", value: 5871},
+      { source: "a", target: "c", value: 8916},
+      { source: "a", target: "d", value: 2868},
+      { source: "b", target: "a", value: 1951},
+      { source: "b", target: "b", value: 10048},
+      { source: "b", target: "c", value: 2060},
+      { source: "b", target: "d", value: 6171},
+      { source: "c", target: "a", value: 8010},
+      { source: "c", target: "b", value: 16145},
+      { source: "c", target: "c", value: 8090},
+      { source: "c", target: "d", value: 8045},
+      { source: "d", target: "a", value: 1013},
+      { source: "d", target: "b", value: 990},
+      { source: "d", target: "c", value: 940},
+      { source: "d", target: "d", value: 6907},
+    ]
+
+    const colors = [
+        '#00a2ce',
+        '#4d430c',
+        '#b3331d',
+        '#b6a756'
+    ]
+
+
+
+    const container = document.body.appendChild(document.createElement('div'));
+    ReactDOM.render(<Semiotic.NetworkFrame
+      size={[ 400,400 ]}
+      edges={dematrixifiedEdges}
+      nodeStyle={(d,i) => ({ fill: colors[d.index], stroke: "white" })}
+      edgeStyle={(d,i) => ({ fill: colors[d.target.index], stroke: "white", opacity: 0.5 })}
+      nodeSizeAccessor={5}
+      sourceAccessor={d => d.source}
+      targetAccessor={d => d.target}
+      hoverAnnotation={true}
+      edgeWidthAccessor={d => d.value}
+      networkType={{ type: "chord", padAngle: 0.01 }}
+    />, container);
+
+  </script>
+</body>
