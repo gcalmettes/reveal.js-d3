@@ -8,7 +8,7 @@ The plugin works best when slides are presented via Chrome and Safari. If the us
 
 ## Principal features:
 
-The development of this plugin has been inspired by [Reveal.js plugin - d3js](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
+The development of this plugin has been inspired by [Reveal.js-d3js-plugin](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
 - the plugin itself is not dependent on `D3` and does not require to add `D3` in the dependencies of Reveal.js
 - the D3 visualizations are loaded only when the slide hosting them becomes active.
 - the D3 visualizations are removed when the slide is not active anymore (next slide) so the browser is not overloaded by running multiples iframes (this behavior [can be configured](#configuration)).
@@ -124,7 +124,7 @@ Reveal.initialize({
     // ...
 
     reveald3: {
-        // Specify if the last state of the visualization has to be 
+        // Specify if the last state of the visualization has to be
         // triggered when navigating to a slide from a slide further
         // in the deck (i.e. we come back to the slide from the next slide).
         // By default the last fragment transition will be triggered to to
