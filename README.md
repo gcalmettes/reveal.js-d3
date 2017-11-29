@@ -9,6 +9,7 @@ The plugin works best when slides are presented via Chrome and Safari. If the us
 ## Principal features:
 
 The development of this plugin has been inspired by [Reveal.js plugin - d3js](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
+- the plugin itself is not dependent on `D3` and does not require to add `D3` in the dependencies of Reveal.js
 - the D3 visualizations are loaded only when the slide hosting them becomes active.
 - the D3 visualizations are removed when the slide is not active anymore (next slide) so the browser is not overloaded by running multiples iframes (this behavior [can be configured](#configuration)).
 - this plugin support multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
@@ -24,14 +25,13 @@ The development of this plugin has been inspired by [Reveal.js plugin - d3js](ht
 
 1. Copy the file `reveald3.js` into a local folder, i.e. the `plugin/` folder of your Reveal.js presentation.
 
-2. Add [`D3`](https://d3js.org) and the `reveald3` plugin to the presentation dependencies:
+2. Add the `reveald3` plugin to the presentation dependencies:
 
 ```javascript
 Reveal.initialize({
     // ...
     dependencies: [
         // ...
-        { src: 'https://d3js.org/d3.v4.min.js' }, //or local copy
         { src: 'plugin/reveald3.js' },
         // ...
     ]
@@ -124,6 +124,14 @@ Reveal.initialize({
     // ...
 
     reveald3: {
+        // Specify if the last state of the visualization has to be 
+        // triggered when navigating to a slide from a slide further
+        // in the deck (i.e. we come back to the slide from the next slide).
+        // By default the last fragment transition will be triggered to to
+        // show the last state of the visualization. This behavior can be
+        // discarded.
+        dropLastState: false, // true/false, default: false
+
         // Specifies if iframes have to be kept on the slide once the
         // slide is not active anymore (presentation has switched to
         // next slide). If true, the final state of the visualization will
@@ -131,7 +139,7 @@ Reveal.initialize({
         // to the slide. This is false by default, as it can be the source
         // of performance issues if complex visualizations (e.g. force layout)
         // are displayed and kept in the background
-        keepIframe: true // default: false
+        keepIframe: false // true,false, default: false
      },
 
 });
