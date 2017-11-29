@@ -20,7 +20,7 @@
     const forceX = d3.forceX(width / 2).strength(0.015)
     const forceY = d3.forceY(height / 2).strength(0.015)
 
-    
+
     const force = d3.forceSimulation()
       .velocityDecay(0.2)
       .force("x", forceX)
@@ -71,6 +71,12 @@
           .attr("r", d => d.originalRadius +  Math.random() * (max - min))
     }
 
+    function colorize(color){
+       d3.selectAll("circle")
+           .transition().duration(400)
+           .style("fill", (d, i) => color)
+     }
+
     let slideNode = Array.prototype.slice.call(window.parent.document.querySelectorAll('section')).filter(d => d.className.includes("present"))[0]
     let button = d3.select(slideNode)
       .select('#recolorButton');
@@ -91,5 +97,3 @@
       },
     ]
 </script>
-
-
