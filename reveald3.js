@@ -202,7 +202,7 @@ var Reveald3 = window.Reveald3 || (function(){
                 for (let j=0; j<nVisualizationSteps; j++) {
                     visualizationStepsIndices[hashTable[visualizationIndices[j]]] = {
                         transitionForward: visualizationSteps[j].transitionForward,
-                        transitionBackward: (visualizationSteps[j].transitionBackward == "none") ? () => {} : (visualizationSteps[j].transitionBackward) ? visualizationSteps[j].transitionBackward : visualizationSteps[j].transitionForward
+                        transitionBackward: (visualizationSteps[j].transitionBackward == "none") ? () => {} : (visualizationSteps[j].transitionBackward) ? visualizationSteps[j].transitionBackward : visualizationSteps[(j-1 >= 0 ? j-1 : 0)].transitionForward
                     }
                 }
 
