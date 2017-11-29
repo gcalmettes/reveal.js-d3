@@ -1,6 +1,6 @@
 # Reveal.js-d3 (reveald3)
 
-[Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate [D3](https://d3js.org) visualizations (or any javascript-based visualization, like [semiotic](https://emeeks.github.io/semiotic/#/) visualizations for example) into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) and [code of the demo](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
+[Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate any javascript-based visualization (from pure [D3](https://d3js.org) visualizations to visualizations made with react-based libraries, like [semiotic](https://emeeks.github.io/semiotic/#/) for example) into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) (navigate from slide to slide with right/left arrows) and [code of the demo examples](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
 
 ## Browser compatibility:
 
@@ -9,11 +9,12 @@ The plugin should work with the latest versions of Chrome, Firefox and Safari.
 ## Principal features:
 
 The development of this plugin has been inspired by [Reveal.js-d3js-plugin](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
-- the plugin itself is not dependent on `D3` and does not require to add `D3` in the dependencies of Reveal.js
-- the D3 visualizations are loaded only when the slide hosting them becomes active.
-- the D3 visualizations are removed when the slide is not active anymore (next slide) so the browser is not overloaded by running multiples iframes (this behavior [can be configured](#configuration)).
-- this plugin support multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
+- the plugin itself is not dependent on `D3` and does not require to add `D3` as a dependencies of Reveal.js
+- the visualizations are loaded only when the slide hosting them becomes active (to prevent performance issues).
+- the visualizations are removed when the slide is not active anymore (e.g.: navigation to previous/next slide) so the browser is not overloaded by running multiples iframes in the background (this behavior [can be configured](#configuration)).
+- this plugin support the insertion of multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
 - the triggering of the transitions for the visualizations is fully compatible with Reveal.js [`data-fragment-index`](https://github.com/hakimel/reveal.js/#fragments) feature.
+- Pure [D3 visualizations](https://gcalmettes.github.io/reveal.js-d3/demo/#/3) or [other javascript-based libraries](https://gcalmettes.github.io/reveal.js-d3/demo/#/5) visualizations are supported.
 
 ## Installation
 
@@ -62,12 +63,12 @@ Reveal.initialize({
 
 ### Adding visualization(s) to a slide
 
-To add a d3.js (or any javascript-based) visualizations to your presentation, simply add a container DOM element (`<div>`, `<span>`, etc ...) with the class `fig-container`, and give it a `data-file` attribute with the path of the html file hosting the javascript-based visualization that you want to embed.
+To add a visualization to your presentation, simply add a container DOM element (`<div>`, `<span>`, etc ...) with the class `fig-container`, and give it a `data-file` attribute with the path of the html file hosting the javascript-based visualization that you want to embed.
 
 ```html
 <section>
     <div class="fig-container"
-         data-file="d3-fig/eclipses.html"></div> // path to the html file with D3 code
+         data-file="d3-fig/eclipses.html"></div> // path to the html file with visualization code
 </section>
 ```
 
@@ -96,10 +97,10 @@ You can also embed the visualization in the background of the slide by adding th
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
-To add transitions to a visualization, simply create a global (`var`) variable in the `D3` code of your `html` file with the name `_transitions`, and assign to it an array of javascript objects defining the transitions functions for each fragment steps. Each javascript object has one obligatory `name:value` pair as well as two optional `name:value` pairs:
+To add transitions to a visualization, simply create a global (`var`) variable in the javascript code of your `html` file with the name `_transitions`, and assign to it an array of javascript objects defining the transitions functions for each fragment steps. Each javascript object in the `_transitions` array has to be defined as at least one obligatory `name:value` pair, and two optional `name:value` pairs can also be declared:
 - `transitionForward` (obligatory): defines a function for the transition from the current state TO the next state of the visualization
-- `transitionBackward` (optional): defines a specific function to be ran for the transition FROM the next state to the current state when user navigates back. If no `transitionBackward` is specified, this will take the `transitionForward` value by default so the original state will be reverted. `transitionBackward` can also take a `"none"` value to specify that no animation/transition have to be ran for the reverse transition.
-- `index` (optional): defines the `data-fragment-index` state at which the transition has to be triggered. If no `index` is defined, the transitions will be played in the order they appear in the `_transitions` array, with the first one getting the `0` index (first fragment played).
+- `transitionBackward` (optional): defines a specific function to be ran for the transition FROM the next state to the current state when user navigates back. If no `transitionBackward` is specified, this will take the `transitionForward` value by default so the original state will be reverted. `transitionBackward` can also take a `"none"` value to specify that no animation/function has to be ran for the reverse transition.
+- `index` (optional): defines the `data-fragment-index` step at which the transition has to be triggered. If no `index` is defined, the transitions will be played in the order they appear in the `_transitions` array, with the first one getting the `0` index (first fragment played).
 
 ```
 var _transitions = [
@@ -129,9 +130,9 @@ var _transitions = [
     ]
 ```
 
-For each slide containing at least one visualization, the plugin looks at the number and index of each transition in all the arrays `_transitions` for the different visualization embedded in the slide and automatically creates corresponding fragments (`<span>`) in the container slide if needed.
+For each slide containing at least one visualization, the plugin looks at the number and index of each transition in all the arrays `_transitions` for the different visualization embedded in the slide and automatically creates corresponding fragments (`<span>`) in the container slide if needed. So there is no need to create empty fragments in the Reveal slide.
 
-Note that each index specified is considered in context of the Reveal.js fragments already present in the slide. For example, if a slide has already 3 fragements (so the `data-fragment-index` states for the slides are 0, 1, 2) and a transition is set to `index: 14` in the `_transitions` array, the plugin will understand that this transition has to be played at the `data-fragment-index=3` (and not that 11 blank fragments have to be created before playing the transition).
+Note that each index specified is considered intelligently in context of the Reveal.js fragments already present in the slide. For example, if a slide has already 3 fragements (so the `data-fragment-index` steps for the slides are 0, 1, 2) and a transition is set to `index: 14` in the `_transitions` array, the plugin will understand that this transition has to be played at the `data-fragment-index=3` step (and not really at `data-fragment-index=14`, since 12 empty steps doesn't make real sense) and will automatically create a `<span>` with this `data-fragment-index`.
 
 ## Configuration
 
