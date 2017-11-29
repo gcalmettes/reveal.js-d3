@@ -73,6 +73,7 @@
             Stage transitions independently for each visualization using Reveal.js 'data-fragment-index' (press right arrow or space)
         </p>
     </div>
+    <div class="fragment"></div>
 
 
 </section>
@@ -112,19 +113,28 @@ Reveal.initialize({
     center: false,
     transition: 'fade',
 
-    //optional configuration for reveald3
-    // if true, do not drop the iframe once the slide is not active anymore
-    // Default is false since keeping the iframes running can overwhelm the browser
-    // depending of the complexity of the visualization
+    // //optional configuration for reveald3
     // reveald3: {
-    //     keepIframe: true // default: false
+
+    //     // If the previous slide is a slide further in the deck (i.e. we come back to
+    //     // slide from the next slide), by default the last fragment transition will be
+    //     // triggered to to get the last state of the visualization. This can be
+    //     // discarded.
+    //     dropLastState: false, //default false
+
+    //     // If true, do not drop the iframe once the slide is not active anymore
+    //     // Default is false since keeping the iframes running can overwhelm the browser
+    //     // depending of the complexity of the visualization. The need for this option
+    //     // to be true is when the last fragment transition is not a state per se but
+    //     // the result of the multiple previous transitions, and the "triggerLastTransition"
+    //     // option is not sufficient to recover the last state.
+    //     keepIframe: false, // default: false
+        
     // },
 
     // Optional reveal.js plugins
     dependencies: [
-        // d3.js library and plugin
-        { src: 'https://d3js.org/d3.v4.min.js' },
-        // { src: 'js/d3.min.js' },
+ 
         { src: '../reveald3.js' },
 
     ]
