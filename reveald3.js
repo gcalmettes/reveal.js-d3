@@ -31,6 +31,12 @@ var Reveald3 = window.Reveald3 || (function(){
         handleSlideVisualizations(event)
     });
 
+    if (options.keepIframe){
+        // if iframes are kept, no need for rendering of last state when
+        // navigating back from slide.
+        options['dropLastState'] = true;
+    }
+
     if (!options.keepIframe){
 
         Reveal.addEventListener('slidechanged', function( event ) {
