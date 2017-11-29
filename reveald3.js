@@ -56,12 +56,36 @@ var Reveald3 = window.Reveald3 || (function(){
     }
 
     function handleSlideVisualizations(event){
-        let allContainers = getAllContainers(event.currentSlide)
+        const currentSlide = event.currentSlide
+        let allContainers = getAllContainers(currentSlide)
         if(!allContainers.length) return;
         //fragments steps already in slide
         let slideFragmentSteps = getUniqueFragmentIndices(event)
+        
         initializeAllVisualizations(allContainers, slideFragmentSteps)
-
+        
+        if (!options.dropLastState){
+            // If the previous slide is a slide further in the deck (i.e. we come back to
+            // slide from the next slide), trigger the last fragment transition to get the 
+            // the last state
+            const idxCurrent = Reveal.getIndices(event.currentSlide)
+            const idxPrevious = Reveal.getIndices(event.previousSlide)
+            if ((idxCurrent.h<idxPrevious.h) || idxCurrent.v<idxPrevious.v){
+                const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
+                if (allFragments.length==0) return
+                let allFragmentsIndices = []
+                for (let i=0; i< allFragments.length; i++){
+                    allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
+                }
+                const allIframes = getAllIframes(currentSlide)
+                for (let i=0; i<allIframes.length; i++){
+                    const iframe = allIframes[i]
+                    iframe.addEventListener("load", function () {
+                        triggerTransition(iframe, Math.max.apply(null, allFragmentsIndices), 'forward')
+                    })
+                }
+            }
+        }      
     }
 
     function getAllContainers(slide){
@@ -117,7 +141,7 @@ var Reveald3 = window.Reveald3 || (function(){
                 visualizationIndices = visualizationSteps.filter(d => d.index>=0).map(d => d.index)
                 if (visualizationIndices.length < nVisualizationSteps) {
                     const nIndicesToAdd = nVisualizationSteps - visualizationIndices.length
-                    const startIndex = d3.max(visualizationIndices)+1 || 0
+                    const startIndex = Math.max.apply(null, visualizationIndices)+1 || 0
                     for (let j=0; j<nIndicesToAdd; j++){
                         visualizationIndices.push(j+startIndex)
                     }
@@ -132,12 +156,16 @@ var Reveald3 = window.Reveald3 || (function(){
 
         // Generate data-fragment-index list of spans to be added to slide
         const nSlideFragmentSteps = slideFragmentSteps.length
-        const extraSteps = d3.sum(uniqueAllVisualizationIndices.map(d => d>nSlideFragmentSteps-1))
+        
+        const extraIndex = uniqueAllVisualizationIndices.map(d => d>nSlideFragmentSteps-1)
+        const extraSteps = extraIndex.reduce((a, b) => a+b, 0);
+        
         let fragmentIndexToCreate
         if (extraSteps==0){
             fragmentIndexToCreate = []
         } else {
-            fragmentIndexToCreate = d3.range(nSlideFragmentSteps, nSlideFragmentSteps+extraSteps)
+            // range [nSlideFragmentSteps, nSlideFragmentSteps+extraSteps]
+            fragmentIndexToCreate = [...Array(extraSteps).keys()].map(d => d+nSlideFragmentSteps)
         }
 
         // hash table for correspondance (data-fragment-index <=> slide fragments sequence)
@@ -175,6 +203,20 @@ var Reveald3 = window.Reveald3 || (function(){
         }
 
         return [allVisualizationStepsIndices, uniqueAllVisualizationIndices.map(d => hashTable[d])]
+    }
+
+    function getAllIframes(slide){
+        const idx = Reveal.getIndices(slide)
+
+        // get all iframe in foreground and background of slide
+        // and convert NodeList to array
+        const iframeSlide = Array.prototype.slice.call(slide.querySelectorAll('iframe'))
+        const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
+
+        // filter out non "iframe-visualization" iframes
+        let allIframes = [].concat(...[iframeSlide, iframeBackground])
+        allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
+        return allIframes
     }
 
     function initialize(element, file, slideFragmentSteps) {
@@ -219,7 +261,7 @@ var Reveald3 = window.Reveald3 || (function(){
             //////////////////////////////////////////////////////////////////////////
 
             // get all the visualization steps from all the visualizations on the slide
-            let nodeList = slide.querySelectorAll('iframe')
+            let nodeList = getAllIframes(slide)
             let allVisualizationSteps = []
             for (let i=0; i<nodeList.length; i++){
                 const iframe = nodeList[i];
@@ -237,12 +279,10 @@ var Reveald3 = window.Reveald3 || (function(){
                 iframe.transitionSteps = allVizStepsDict[i];
             }
 
-
             // add spans fragments to trigger visualization steps
             let fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
             if (fragmentSpans.length < spansToCreate.length){
                 const nSpansToCreate = spansToCreate.length - fragmentSpans.length
-                console.log(nSpansToCreate)
                 for (let i=0; i<nSpansToCreate; i++){
                     const spanFragment = document.createElement('span')
                     spanFragment.setAttribute('class', 'fragment visualizationStep')
@@ -250,12 +290,9 @@ var Reveald3 = window.Reveald3 || (function(){
                 }        
             }
             fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
-            console.log(fragmentSpans)
             for (let i=0; i<spansToCreate.length; i++){
                 fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
             }
-            // console.log(fragmentSpans2, spansToCreate)
-
         }); //onload
 
     }
@@ -293,38 +330,36 @@ var Reveald3 = window.Reveald3 || (function(){
         return allClassNames.includes('visualizationStep')
     }
 
+    function triggerAllTransitions(allIframes, currentStep, direction){
+        for (let i=0; i<allIframes.length; i++){
+            triggerTransition(allIframes[i], currentStep, direction)
+        }
+    }
+
+    function triggerTransition(iframe, currentStep, direction){
+        if (direction=="forward") {
+            if ((iframe.transitionSteps) && (iframe.transitionSteps[currentStep])) {
+               (iframe.transitionSteps[currentStep].transitionForward || Function)()
+            }
+            
+        } else {            
+            if ((iframe.transitionSteps) && (iframe.transitionSteps[currentStep])) {
+               (iframe.transitionSteps[currentStep].transitionBackward || Function)()
+            } 
+        }
+    }
+
     function handleFragments(event, direction){
         //get data-fragment-index of current step
-        let currentStep = event.fragments[0].getAttribute('data-fragment-index')
+        let currentStep = parseInt(event.fragments[0].getAttribute('data-fragment-index'))
 
         // forward transition
         const slide = event.fragment.closest('section')
-        const idx = Reveal.getIndices(slide)
+        
+        // get all iframe embedding visualisations
+        let allIframes = getAllIframes(slide)
 
-        // get all iframe in foreground and background of slide
-        // and convert NodeList to array
-        const iframeSlide = Array.prototype.slice.call(slide.querySelectorAll('iframe'))
-        const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
-
-        // filter out non "iframe-visualization" iframes
-        let allIframes = [].concat(...[iframeSlide, iframeBackground])
-        allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
-
-        if (direction=="forward") {
-            //loop over all the containers and trigger transition
-            for (let i=0; i<allIframes.length; i++){
-                if ((allIframes[i].transitionSteps) && (allIframes[i].transitionSteps[currentStep])) {
-                   (allIframes[i].transitionSteps[currentStep].transitionForward || Function)()
-                }
-            }
-        } else {
-            //loop over all the containers and trigger transition
-            for (let i=0; i<allIframes.length; i++){
-                if ((allIframes[i].transitionSteps) && (allIframes[i].transitionSteps[currentStep])) {
-                   (allIframes[i].transitionSteps[currentStep].transitionBackward || Function)()
-                }
-            }
-        }
+        triggerAllTransitions(allIframes, currentStep, direction)
     }
 
 })(); // Reveald3
