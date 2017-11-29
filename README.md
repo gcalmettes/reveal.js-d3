@@ -125,20 +125,23 @@ Reveal.initialize({
 
     reveald3: {
         // Specify if the last state of the visualization has to be
-        // triggered when navigating to a slide from a slide further
+        // triggered when navigating back to a slide from a slide further
         // in the deck (i.e. we come back to the slide from the next slide).
         // By default the last fragment transition will be triggered to to
         // show the last state of the visualization. This behavior can be
-        // discarded.
+        // discarded (for example if the transition duration is long
+        // or is a resource-intensive or there is no need to retrieve the
+        // last state of the visualization).
         dropLastState: false, // true/false, default: false
 
-        // Specifies if iframes have to be kept on the slide once the
-        // slide is not active anymore (presentation has switched to
-        // next slide). If true, the final state of the visualization will
-        // be the kept so that it will be the one displayed if we go back
+        // Specifies if iframes (that host the visualization) have to be kept on
+        // the slide once the slide is not active anymore (e.g.: navigating to
+        // next slide). If true, the current visualization will be kept active
+        // so that its state will be the one displayed if we navigate back
         // to the slide. This is false by default, as it can be the source
         // of performance issues if complex visualizations (e.g. force layout)
-        // are displayed and kept in the background
+        // are displayed and kept in the background.
+        // Also, see the dropLastState option as less resource-demanding alternative.
         keepIframe: false // true,false, default: false
      },
 
