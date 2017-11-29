@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script src="https://cdn.jsdelivr.net/combine/npm/d3,npm/topojson"></script>
+  <script src="js/d3.v4.min.js"></script>
+  <script src="js/topojson.min.js"></script>
   
 	<style>
     body {margin:0;}
@@ -79,7 +80,7 @@ function draw() {
 }
 
 // "https://unpkg.com/world-atlas/world/110m.json"
-d3.json("https://cdn.jsdelivr.net/npm/world-atlas/world/110m.json", (err, world) => {
+d3.json("eclipses-110m.json", (err, world) => {
   land.datum(topojson.feature(world, world.objects.land))
   .attr('opacity', 0.01)
   .transition()
@@ -112,7 +113,8 @@ draw();
 </script>
 
 <!-- d3.inertia starts here -->
-<script src="https://cdn.jsdelivr.net/combine/npm/versor,npm/d3-inertia"></script>
+<!-- <script src="https://cdn.jsdelivr.net/combine/npm/versor,npm/d3-inertia"></script> -->
+<script src="js/versor-inertia.min.js"></script>
 
 <script>
 var inertia = d3.geoInertiaDrag(svg, draw);
