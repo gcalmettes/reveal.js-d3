@@ -14,7 +14,7 @@ The development of this plugin has been inspired by [Reveal.js-d3js-plugin](http
 - the visualizations are removed when the slide is not active anymore (e.g.: navigation to previous/next slide) so the browser is not overloaded by running multiples iframes in the background (this behavior [can be configured](#configuration)).
 - this plugin support the insertion of multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
 - the triggering of the transitions for the visualizations is fully compatible with Reveal.js [`data-fragment-index`](https://github.com/hakimel/reveal.js/#fragments) feature.
-- Any javascript-based visualizations are supported (slide examples: [D3 visualizations](https://gcalmettes.github.io/reveal.js-d3/demo/#/3), [Semiotic (React-based) visualisations](https://gcalmettes.github.io/reveal.js-d3/demo/#/5), [Vega-lite (declarative javascript) visualizations]((https://gcalmettes.github.io/reveal.js-d3/demo/#/6)), etc ...).
+- Any javascript-based visualizations are supported (slide examples: [D3 visualizations](https://gcalmettes.github.io/reveal.js-d3/demo/#/3), [Semiotic (React-based) visualisations](https://gcalmettes.github.io/reveal.js-d3/demo/#/5), [Vega-lite (declarative javascript) visualizations](https://gcalmettes.github.io/reveal.js-d3/demo/#/6)), etc ...).
 
 ## Installation
 
