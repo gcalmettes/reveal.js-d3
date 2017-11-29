@@ -1,0 +1,24 @@
+{
+  "name": "reveald3",
+  "version": "1.0.0",
+  "description": "Full integration and control of animated d3.js visualizations into Reveal.js presentations",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gcalmettes/reveal.js-d3.git"
+  },
+  "keywords": [
+    "reveal",
+    "reveal.js",
+    "d3",
+    "d3.js"
+  ],
+  "author": "Guillaume Calmettes",
+  "license": "MIT Copyright (c) 2017 Guillaume Calmettes",
+  "bugs": {
+    "url": "https://github.com/gcalmettes/reveal.js-d3/issues"
+  },
+  "homepage": "https://github.com/gcalmettes/reveal.js-d3#readme"
+}
