@@ -95,7 +95,6 @@ var Reveald3 = window.Reveald3 || (function(){
             for (let i=0; i<allIframes.length; i++){
                 const iframe = allIframes[i]
                 iframe.addEventListener("load", function () {
-                    console.log("event fired")
                     triggerAllTransitions(allIframes, Math.max.apply(null, allFragmentsIndices), 'forward')
                 })
             }
