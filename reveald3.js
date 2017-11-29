@@ -149,7 +149,7 @@ var Reveald3 = window.Reveald3 || (function(){
                 visualizationIndices = visualizationSteps.filter(d => d.index>=0).map(d => d.index)
                 if (visualizationIndices.length < nVisualizationSteps) {
                     const nIndicesToAdd = nVisualizationSteps - visualizationIndices.length
-                    const startIndex = Math.max.apply(null, visualizationIndices)+1 || 0
+                    const startIndex = visualizationIndices.length == 0 ? 0 : Math.max.apply(null, visualizationIndices)+1
                     for (let j=0; j<nIndicesToAdd; j++){
                         visualizationIndices.push(j+startIndex)
                     }
