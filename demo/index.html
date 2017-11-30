@@ -129,26 +129,30 @@ Reveal.initialize({
     center: false,
     transition: 'fade',
 
-    // //optional configuration for reveald3
+    // // optional configurations for reveald3
     // reveald3: {
 
-    //     // If the previous slide is a slide further in the deck (i.e. we come back to
-    //     // slide from the next slide), by default the last fragment transition will be
-    //     // triggered to to get the last state of the visualization. This can be
-    //     // discarded.
-    //     dropLastState: false, //default false
+    //      // If the previous slide is a slide further in the deck (i.e. we come back to
+    //      // slide from the next slide), by default the last fragment transition will be
+    //      // triggered to to get the last state of the visualization and simulate the
+    //      // the state the simulation was in when we left the slide. This can be
+    //      // discarded.
+    //      runLastState: true, //default true
 
-    //     // If true, do not drop the iframe once the slide is not active anymore
-    //     // Default is false since keeping the iframes running can overwhelm the browser
-    //     // depending of the complexity of the visualization. The need for this option
-    //     // to be true is when the last fragment transition is not a state per se but
-    //     // the result of the multiple previous transitions, and the "triggerLastTransition"
-    //     // option is not sufficient to recover the last state.
-    //     keepIframe: false, // default: false
+    //      // Specifies if iframes (that host the visualization) have to be kept
+    //      // on the slide once the slide is not active anymore (e.g.: navigating 
+    //      // to next slide). If true, the current visualization will be kept 
+    //      // active so that its state will be the one displayed if we navigate 
+    //      // back to the slide. This is false by default, as it can be the source
+    //      // of performance issues if complex visualizations (e.g. force layout)
+    //      // are displayed and kept in the background.
+    //      // Also, see the runLastState option as a simpler less 
+    //      // resource-demanding alternative.
+    //      keepIframe: false, // default: false
 
     // },
 
-    // Optional reveal.js plugins
+    // Reveal.js plugins
     dependencies: [
 
         { src: '../reveald3.js' },

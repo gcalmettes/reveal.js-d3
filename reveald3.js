@@ -3,8 +3,24 @@
  */
 var Reveald3 = window.Reveald3 || (function(){
     // check if configurations need to be overwritten
-    const config = Reveal.getConfig();
-    const options = config.reveald3 || {};
+    const config = Reveal.getConfig() || {};
+    config.reveald3 = config.reveald3 || {};
+
+    const options = {
+          // If the previous slide is a slide further in the deck (i.e. we come back to
+          // slide from the next slide), by default the last fragment transition will be
+          // triggered to to get the last state of the visualization. This can be
+          // discarded.
+          runLastState: !config.reveald3.runLastState, //default true
+
+          // If true, do not drop the iframe once the slide is not active anymore
+          // Default is false since keeping the iframes running can overwhelm the browser
+          // depending of the complexity of the visualization. The need for this option
+          // to be true is when the last fragment transition is not a state per se but
+          // the result of the multiple previous transitions, and the "triggerLastTransition"
+          // option is not sufficient to recover the last state.
+          keepIframe: !!config.reveald3.keepIframe, // default: false
+  	};
 
     // propagate keydown when focus is on iframe (child)
     // https://stackoverflow.com/a/41361761/2503795
@@ -34,7 +50,7 @@ var Reveald3 = window.Reveald3 || (function(){
     if (options.keepIframe){
         // if iframes are kept, no need for rendering of last state when
         // navigating back from slide.
-        options['dropLastState'] = true;
+        options['runLastState'] = false;
     }
 
     if (!options.keepIframe){
@@ -71,7 +87,7 @@ var Reveald3 = window.Reveald3 || (function(){
 
         initializeAllVisualizations(allContainers, slideFragmentSteps)
 
-        if (!options.dropLastState){
+        if (options.runLastState){
             // is it a navigation back from other slide event?
             triggerLastState(event)
         }
