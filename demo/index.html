@@ -153,11 +153,11 @@ Reveal.initialize({
          
          // This will prefix the path attributes of the source html paths with the given path.
          // (by default "src" if set to true or with the specified path if string)
-         mapPath: typeof(config.reveald3.mapPath) == 'string' ? config.reveald3.mapPath : ( config.reveald3.mapPath ? 'src' : '' ),
+         mapPath: false, // default: false
           
          // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
          // at the stipulated url with mapPath
-         tryFallbackURL: !!config.reveald3.tryFallbackURL, //default false
+         tryFallbackURL: false, //default false
     },
 
     // Reveal.js plugins
