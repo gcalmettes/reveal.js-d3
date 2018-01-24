@@ -264,7 +264,7 @@ var Reveald3 = window.Reveald3 || (function(){
         xhr.send();
         // return xhr.status != 404
         if (xhr.status == "404") {
-            console.log(`Couldn't locate "${urlToFile}", trying fallback url at "${options.mapPath + urlToFile}"`)
+            console.log(`Couldn't locate "${urlToFile}", trying fallback url at "${urlToFile.slice(options.mapPath.length)}"`)
             return false;
         } else {
             return true;
