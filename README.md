@@ -162,7 +162,15 @@ Reveal.initialize({
         // are displayed and kept in the background.
         // Also, see the runLastState option as a simpler less 
         // resource-demanding alternative.
-        keepIframe: false // true,false, default: false
+        keepIframe: false // true/false, default: false
+
+        // This will prefix the path attributes of the source html paths with the given path.
+        // (by default "src" if set to true or with the specified path if string)
+        mapPath: false, // true / false / "spefific/path/as/string", default: false
+          
+        // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
+        // at the stipulated url with mapPath
+        tryFallbackURL: false, // true/false, default false
      },
 
 });

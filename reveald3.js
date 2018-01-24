@@ -20,7 +20,15 @@ var Reveald3 = window.Reveald3 || (function(){
           // the result of the multiple previous transitions, and the "triggerLastTransition"
           // option is not sufficient to recover the last state.
           keepIframe: !!config.reveald3.keepIframe, // default: false
-  	};
+
+          // This will prefix the path attributes of the source html paths with the given path.
+          // (by default "src" if set to true or with the specified path if string)
+          mapPath: typeof(config.reveald3.mapPath) == 'string' ? config.reveald3.mapPath : ( config.reveald3.mapPath ? 'src' : '' ),
+          
+          // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
+          // at the stipulated url with mapPath
+          tryFallbackURL: !!config.reveald3.tryFallbackURL, //default false
+        };
 
     // propagate keydown when focus is on iframe (child)
     // https://stackoverflow.com/a/41361761/2503795
@@ -250,6 +258,19 @@ var Reveald3 = window.Reveald3 || (function(){
         return allIframes
     }
 
+    function doesFileExist(urlToFile) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('HEAD', urlToFile, false);
+        xhr.send();
+        // return xhr.status != 404
+        if (xhr.status == "404") {
+            console.log(`Couldn't locate "${urlToFile}", trying fallback url at "${options.mapPath + urlToFile}"`)
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     function initialize(element, file, slideFragmentSteps) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
@@ -258,11 +279,14 @@ var Reveald3 = window.Reveald3 || (function(){
         const iframeList = container.querySelectorAll('iframe')
         if (iframeList.length>0) return;
 
+        const filePath = !options.tryFallbackURL ? options.mapPath + file : doesFileExist(options.mapPath + file) ? options.mapPath + file : file
+        
+        
         // create iframe to embed html file
         let iframeConfig = {
             'class': 'iframe-visualization',
             'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
-            'src': file,
+            'src': filePath,
             'scrolling': 'no',
             'style': 'margin: 0px; width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; z-index: 1;'
         }
