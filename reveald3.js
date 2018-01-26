@@ -24,7 +24,7 @@ var Reveald3 = window.Reveald3 || (function(){
           // This will prefix the path attributes of the source html paths with the given path.
           // (by default "src" if set to true or with the specified path if string)
           mapPath: typeof(config.reveald3.mapPath) == 'string' ? config.reveald3.mapPath : ( config.reveald3.mapPath ? 'src' : '' ),
-          
+
           // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
           // at the stipulated url with mapPath
           tryFallbackURL: !!config.reveald3.tryFallbackURL, //default false
@@ -260,7 +260,7 @@ var Reveald3 = window.Reveald3 || (function(){
 
     function doesFileExist(urlToFile) {
         const xhr = new XMLHttpRequest();
-        xhr.open('HEAD', urlToFile, false);
+        xhr.open('HEAD', urlToFile, true); // synchroneous loading deprecated
         xhr.send();
         // return xhr.status != 404
         if (xhr.status == "404") {
@@ -280,8 +280,8 @@ var Reveald3 = window.Reveald3 || (function(){
         if (iframeList.length>0) return;
 
         const filePath = !options.tryFallbackURL ? options.mapPath + file : doesFileExist(options.mapPath + file) ? options.mapPath + file : file
-        
-        
+
+
         // create iframe to embed html file
         let iframeConfig = {
             'class': 'iframe-visualization',
