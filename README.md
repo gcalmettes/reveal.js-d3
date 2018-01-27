@@ -68,7 +68,7 @@ To add a visualization to your presentation, simply add a container DOM element 
 ```html
 <section>
     <div class="fig-container"
-         data-file="d3-fig/eclipses.html"></div> // path to the html file with visualization code
+         data-file="d3-fig/eclipses.html"></div> <!-- path to the html file with visualization code -->
 </section>
 ```
 
@@ -94,6 +94,17 @@ You can also embed the visualization in the background of the slide by adding th
     <p>some text</p>
 </section>
 ```
+
+Support for scrollable content within your visualization, either in the `section` element or elsewhere in the DOM, is provided by the `data-scrollable` attribute. Supplying `"yes"` will enable scrolling only on the visualization container while `"no"`, or simply omitting the `data-scrolling` attribute, will disable scrolling for that particular visualization. This feature is useful for incorporating websites, or larger visualizations, into your presentation without having to navigate away, because who likes to watch someone close their presentation to go open something else?
+
+```html
+<!-- Include a beautiful website directly in your presentation -->
+<section class="fig-container" 
+         data-file="http://students.brown.edu/seeing-theory/" 
+         data-scrollable="yes">
+</section>
+```
+
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
