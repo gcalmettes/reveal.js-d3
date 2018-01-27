@@ -149,7 +149,8 @@ var Reveald3 = window.Reveald3 || (function(){
     function initializeAllVisualizations(containerList, slideFragmentSteps){
         for (let i = 0; i<containerList.length; i++ ) {
             const file = containerList[i].getAttribute('data-file')
-            initialize(containerList[i], file, slideFragmentSteps);
+            const dataScrollable = containerList[i].getAttribute('data-scrollable') != 'yes' ? 'no': 'yes';
+            initialize(containerList[i], file, slideFragmentSteps, dataScrollable);
         }
     }
 
@@ -271,7 +272,7 @@ var Reveald3 = window.Reveald3 || (function(){
         }
     }
 
-    function initialize(element, file, slideFragmentSteps) {
+    function initialize(element, file, slideFragmentSteps, iframeScrollable) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
 
@@ -287,7 +288,7 @@ var Reveald3 = window.Reveald3 || (function(){
             'class': 'iframe-visualization',
             'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
             'src': filePath,
-            'scrolling': 'no',
+            'scrolling': iframeScrollable,
             'style': 'margin: 0px; width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; z-index: 1;'
         }
         const iframe = document.createElement('iframe')
