@@ -99,7 +99,10 @@ Support for scrollable content within your visualization, either in the `section
 
 ```html
 <!-- Include a beautiful website directly in your presentation -->
-<section class="fig-container" data-file="http://students.brown.edu/seeing-theory/" data-scrollable="yes"></section>
+<section class="fig-container" 
+         data-file="http://students.brown.edu/seeing-theory/" 
+         data-scrollable="yes">
+</section>
 ```
 
 
