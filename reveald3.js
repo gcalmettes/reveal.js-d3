@@ -259,18 +259,26 @@ var Reveald3 = window.Reveald3 || (function(){
         return allIframes
     }
 
-    function doesFileExist(urlToFile) {
-        const xhr = new XMLHttpRequest();
-        xhr.open('HEAD', urlToFile, true); // synchroneous loading deprecated
-        xhr.send();
-        // return xhr.status != 404
-        if (xhr.status == "404") {
-            console.log(`Couldn't locate "${urlToFile}", trying fallback url at "${urlToFile.slice(options.mapPath.length)}"`)
-            return false;
-        } else {
-            return true;
+    function doesFileExist( address ) {
+        const client = new XMLHttpRequest();
+        client.onload = function() {
+          // in case of network errors this might not give reliable results
+          returnStatus(this.status, address);
         }
+        client.open( "HEAD", address, true);
+        client.send();
     }
+  
+      function returnStatus(status, urlToFile) {
+        if ( status === 200 ) {
+          // console.log( 'file exists!' );
+          return true
+        }
+        else {
+          console.log(`Error ${status}. Couldn't locate "${urlToFile}", fallback to original url at "${urlToFile.slice(options.mapPath.length)}"`)
+          return false
+        }
+      }
 
     function initialize(element, file, slideFragmentSteps, iframeScrollable) {
         // current current slide and container to host the visualization
@@ -280,7 +288,7 @@ var Reveald3 = window.Reveald3 || (function(){
         const iframeList = container.querySelectorAll('iframe')
         if (iframeList.length>0) return;
 
-        const filePath = !options.tryFallbackURL ? options.mapPath + file : doesFileExist(options.mapPath + file) ? options.mapPath + file : file
+        const filePath = (options.tryFallbackURL && doesFileExist(options.mapPath + file)) ? options.mapPath + file : file
 
 
         // create iframe to embed html file
