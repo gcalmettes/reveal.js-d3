@@ -147,10 +147,32 @@ var Reveald3 = window.Reveald3 || (function(){
     }
 
     function initializeAllVisualizations(containerList, slideFragmentSteps){
+        // Default style
+        const defaultStyle = {
+          'margin': '0px',
+          'width': '100vw',
+          'height': '100vh',
+          'max-width': '100%',
+          'max-height': '100%',
+          'z-index': 1
+        }
+
         for (let i = 0; i<containerList.length; i++ ) {
             const file = containerList[i].getAttribute('data-file')
             const dataScrollable = containerList[i].getAttribute('data-scrollable') != 'yes' ? 'no': 'yes';
-            initialize(containerList[i], file, slideFragmentSteps, dataScrollable);
+            
+            // get inputted iframe styles via the data-style attribute and parse it
+            const dataStyleString = containerList[i].getAttribute('data-style') ? containerList[i].getAttribute('data-style') : "";
+            // const regexStyle = /\s*([^;^\s]*)\s*:\s*([^;^\s]*)/g
+            const regexStyle = /\s*([^;^\s]*)\s*:\s*([^;^\s]*(\s*)?(!important)?)/g
+
+            let inputtedStyle = {}, matchStyleArray;
+            while (matchStyleArray = regexStyle.exec(dataStyleString)) {
+              inputtedStyle[matchStyleArray[1]] = matchStyleArray[2]
+            }
+            const iframeStyle = Object.assign(defaultStyle, inputtedStyle)
+
+            initialize(containerList[i], file, slideFragmentSteps, dataScrollable, iframeStyle);
         }
     }
 
@@ -280,9 +302,14 @@ var Reveald3 = window.Reveald3 || (function(){
         }
       }
 
-    function initialize(element, file, slideFragmentSteps, iframeScrollable) {
+    function initialize(element, file, slideFragmentSteps, iframeScrollable, iframeStyle) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
+
+        // by default hid overflow of container so combining iframe margins and height/width
+        // can be used to define an area without seeing the overflow.
+        // This can be overridden using the data-overflow-shown=true attribute
+        container.style.overflow = (container.style.overflow=="" && !JSON.parse(container.getAttribute('data-overflow-shown'))) ? 'hidden' : container.style.overflow
 
         // continue only if iframe hasn't been created already for this container
         const iframeList = container.querySelectorAll('iframe')
@@ -290,6 +317,9 @@ var Reveald3 = window.Reveald3 || (function(){
 
         const filePath = (options.tryFallbackURL && doesFileExist(options.mapPath + file)) ? options.mapPath + file : file
 
+        // generate styles string
+        const styles = Object.entries(iframeStyle)
+          .reduce((res, [key, value]) => `${res}${key}:${String(value).replace(/\s+/, " ")};`, "")
 
         // create iframe to embed html file
         let iframeConfig = {
@@ -297,8 +327,9 @@ var Reveald3 = window.Reveald3 || (function(){
             'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
             'src': filePath,
             'scrolling': iframeScrollable,
-            'style': 'margin: 0px; width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; z-index: 1;'
+            'style': styles
         }
+
         const iframe = document.createElement('iframe')
         for (let i=0; i<Object.keys(iframeConfig).length; i++){
             const key = Object.keys(iframeConfig)[i]
