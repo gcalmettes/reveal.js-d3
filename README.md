@@ -1,6 +1,6 @@
 # Reveal.js-d3 (reveald3)
 
-[Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate any javascript-based visualization (from pure [D3](https://d3js.org) visualizations to visualizations made with react-based libraries, like [semiotic](https://emeeks.github.io/semiotic/#/) for example) into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) (navigate from slide to slide with right/left arrows) and [code of the demo examples](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
+[Reveal.js](https://github.com/hakimel/reveal.js/) plugin to integrate any javascript-based visualization (from pure [D3](https://d3js.org) visualizations to visualizations made with react-based libraries, like [semiotic](https://emeeks.github.io/semiotic/#/) for example) into HTML slides and trigger transitions/animations fully compatible with the Reveal.js `data-fragment-index` fragements attribute. More generally, you can embed anything that can be rendered in an `.html` file (including embedding of a full website, served locally or remotely). [Check out the live demo](https://gcalmettes.github.io/reveal.js-d3/demo/) (navigate from slide to slide with right/left arrows) and [code of the demo examples](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo).
 
 ## Browser compatibility:
 
@@ -95,13 +95,44 @@ You can also embed the visualization in the background of the slide by adding th
 </section>
 ```
 
-Support for scrollable content within your visualization, either in the `section` element or elsewhere in the DOM, is provided by the `data-scrollable` attribute. Supplying `"yes"` will enable scrolling only on the visualization container while `"no"`, or simply omitting the `data-scrolling` attribute, will disable scrolling for that particular visualization. This feature is useful for incorporating websites, or larger visualizations, into your presentation without having to navigate away, because who likes to watch someone close their presentation to go open something else?
+### Embedding a website into a slide
+
+You can also directly provide a `url` to embed whatever is served at this `url`. This will work for local (e.g.: `http://localhost/4300`) or remote (any website address) `url`s
 
 ```html
 <!-- Include a beautiful website directly in your presentation -->
 <section class="fig-container" 
-         data-file="http://students.brown.edu/seeing-theory/" 
-         data-scrollable="yes">
+         data-file="https://students.brown.edu/seeing-theory/" 
+</section>
+```
+
+
+### Advanced styling of the embedded iframe
+
+Direct styling of the iframe your visualization will be embedded in can be controlled via the `data-style` attribute. The format of the styles string provided follows the same pattern you would use to inline-style any DOM element. Any valid `CSS` attribute can be used. Directly styling the iframe could be useful for example if you would like to show only part of a visualization you made, or part of a website you would like to display (in a similar way of how you would use the `viewbox` attribute in an `svg` to define the boundaries of an area to display). In this case, you would play with the `margin-top`/`margin-left` as well as the `height`/`width` of the iframe:
+
+```html
+<!-- Include a website directly in your presentation  but don't show the header by removing 100px at the top -->
+<section>
+  <h3>Website without the header</h3>
+  <div  class="fig-container" style="overflow:hidden;" 
+        data-file="https://students.brown.edu/seeing-theory/" 
+        data-style="height: 500px; margin-top: -100px; width: 650px;">
+  </div>
+</section>
+```
+
+The trick above would work because by default the container hosting your iframe is styled with a `style="overflow: hidden;"`. If you do not want the overflow to be hidden, then you can set the `data-overflow-shown` attribute to `true`. If you use the same code than the example above but add `data-overflow-shown=true`, this will result in adding the top 100px of your visualization (in addition of whatever was shown before) in this particular case, since now the overflow of the container would be shown. See the demo for more information.
+
+```html
+<!-- Include a website directly in your presentation and offset the website by 100px up compared to the div -->
+<section>
+  <h3>Website without the header</h3>
+  <div  class="fig-container" style="overflow:hidden;" 
+        data-overflow-shown=true
+        data-file="https://students.brown.edu/seeing-theory/" 
+        data-style="height: 500px; margin-top: -100px; width: 650px;">
+  </div>
 </section>
 ```
 
