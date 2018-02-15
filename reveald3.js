@@ -159,7 +159,6 @@ var Reveald3 = window.Reveald3 || (function(){
 
         for (let i = 0; i<containerList.length; i++ ) {
             const file = containerList[i].getAttribute('data-file')
-            const dataScrollable = containerList[i].getAttribute('data-scrollable') != 'yes' ? 'no': 'yes';
             
             // get inputted iframe styles via the data-style attribute and parse it
             const dataStyleString = containerList[i].getAttribute('data-style') ? containerList[i].getAttribute('data-style') : "";
@@ -172,7 +171,7 @@ var Reveald3 = window.Reveald3 || (function(){
             }
             const iframeStyle = Object.assign(defaultStyle, inputtedStyle)
 
-            initialize(containerList[i], file, slideFragmentSteps, dataScrollable, iframeStyle);
+            initialize(containerList[i], file, slideFragmentSteps, iframeStyle);
         }
     }
 
@@ -302,7 +301,7 @@ var Reveald3 = window.Reveald3 || (function(){
         }
       }
 
-    function initialize(element, file, slideFragmentSteps, iframeScrollable, iframeStyle) {
+    function initialize(element, file, slideFragmentSteps, iframeStyle) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
 
@@ -326,7 +325,6 @@ var Reveald3 = window.Reveald3 || (function(){
             'class': 'iframe-visualization',
             'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
             'src': filePath,
-            'scrolling': iframeScrollable,
             'style': styles
         }
 
