@@ -11,7 +11,7 @@ var Reveald3 = window.Reveald3 || (function(){
           // slide from the next slide), by default the last fragment transition will be
           // triggered to to get the last state of the visualization. This can be
           // discarded.
-          runLastState: !config.reveald3.runLastState, //default true
+          runLastState: config.reveald3.runLastState == undefined ? !config.reveald3.runLastState : config.reveald3.runLastState, //default true
 
           // If true, do not drop the iframe once the slide is not active anymore
           // Default is false since keeping the iframes running can overwhelm the browser
@@ -19,7 +19,7 @@ var Reveald3 = window.Reveald3 || (function(){
           // to be true is when the last fragment transition is not a state per se but
           // the result of the multiple previous transitions, and the "triggerLastTransition"
           // option is not sufficient to recover the last state.
-          keepIframe: !!config.reveald3.keepIframe, // default: false
+          keepIframe: config.reveald3.keepIframe == undefined ? !!config.reveald3.keepIframe : config.reveald3.keepIframe, // default: false
 
           // This will prefix the path attributes of the source html paths with the given path.
           // (by default "src" if set to true or with the specified path if string)
@@ -27,7 +27,7 @@ var Reveald3 = window.Reveald3 || (function(){
 
           // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
           // at the stipulated url with mapPath
-          tryFallbackURL: !!config.reveald3.tryFallbackURL, //default false
+          tryFallbackURL: config.reveald3.tryFallbackURL == undefined ? !!config.reveald3.tryFallbackURL : config.reveald3.tryFallbackURL, //default false
         };
 
     // propagate keydown when focus is on iframe (child)
