@@ -280,28 +280,30 @@ var Reveald3 = window.Reveald3 || (function(){
         return allIframes
     }
 
-    function doesFileExist( address ) {
-        const client = new XMLHttpRequest();
-        client.onload = function() {
-          // in case of network errors this might not give reliable results
-          returnStatus(this.status, address);
-        }
-        client.open( "HEAD", address, true);
-        client.send();
+    function doesFileExist(address) {
+        return new Promise (resolve => {
+            const client = new XMLHttpRequest();
+            client.onload = function() {
+                // in case of network errors this might not give reliable results
+                resolve(returnStatus(this.status, address));
+            }
+            client.open( "HEAD", address, true);
+            client.send();
+        })
     }
   
-      function returnStatus(status, urlToFile) {
-        if ( status === 200 ) {
-          // console.log( 'file exists!' );
-          return true
-        }
-        else {
-          console.log(`Error ${status}. Couldn't locate "${urlToFile}", fallback to original url at "${urlToFile.slice(options.mapPath.length)}"`)
-          return false
-        }
+    function returnStatus(status, urlToFile) {
+      if ( status === 200 ) {
+        // console.log( 'file exists!' );
+        return true
       }
+      else {
+        console.log(`Error ${status}. Couldn't locate "${urlToFile}", fallback to original url at "${urlToFile.slice(options.mapPath.length)}"`)
+        return false
+      }
+    }
 
-    function initialize(element, file, slideFragmentSteps, iframeStyle) {
+    async function initialize(element, file, slideFragmentSteps, iframeStyle) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
 
@@ -314,7 +316,8 @@ var Reveald3 = window.Reveald3 || (function(){
         const iframeList = container.querySelectorAll('iframe')
         if (iframeList.length>0) return;
 
-        const filePath = (options.tryFallbackURL && doesFileExist(options.mapPath + file)) ? options.mapPath + file : file
+        const fileExists = await doesFileExist( options.mapPath + file )
+        const filePath = (options.tryFallbackURL && fileExists) ? options.mapPath + file : file
 
         // generate styles string
         const styles = Object.entries(iframeStyle)
