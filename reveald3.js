@@ -179,7 +179,7 @@ var Reveald3 = window.Reveald3 || (function(){
         const slide = event.currentSlide
         let slideFragments = Array.prototype.slice.call(slide.querySelectorAll( '.fragment' ))
         // filter out fragments created for transition steps, if any
-        slideFragments = slideFragments.filter(d => !d.className.includes("visualizationStep"))
+        slideFragments = slideFragments.filter(d => !d.getAttribute("class").split().includes("visualizationStep"))
         let fragmentIndices = []
         for (let i=0; i<slideFragments.length; i++){
             fragmentIndices.push(parseInt(slideFragments[i].getAttribute( 'data-fragment-index' )))
