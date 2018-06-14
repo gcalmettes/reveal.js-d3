@@ -93,15 +93,10 @@ var Reveald3 = window.Reveald3 || (function(){
         //fragments steps already in slide
         let slideFragmentSteps = getUniqueFragmentIndices(event)
 
-        initializeAllVisualizations(allContainers, slideFragmentSteps)
-
-        if (options.runLastState){
-            // is it a navigation back from other slide event?
-            triggerLastState(event)
-        }
+        initializeAllVisualizations(allContainers, slideFragmentSteps, event)
     }
 
-    function triggerLastState(event){
+    function triggerLastState(event, iframe){
         // If the previous slide is a slide further in the deck (i.e. we come back to
         // slide from the next slide), trigger the last fragment transition to get the
         // the last state
@@ -115,13 +110,7 @@ var Reveald3 = window.Reveald3 || (function(){
             for (let i=0; i< allFragments.length; i++){
                 allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
             }
-            const allIframes = getAllIframes(currentSlide)
-            for (let i=0; i<allIframes.length; i++){
-                const iframe = allIframes[i]
-                iframe.addEventListener("load", function () {
-                    triggerAllTransitions(allIframes, Math.max.apply(null, allFragmentsIndices), 'forward')
-                })
-            }
+            triggerTransition(iframe, Math.max.apply(null, allFragmentsIndices), 'forward')
         }
     }
 
@@ -146,7 +135,7 @@ var Reveald3 = window.Reveald3 || (function(){
         return [slide, container]
     }
 
-    function initializeAllVisualizations(containerList, slideFragmentSteps){
+    function initializeAllVisualizations(containerList, slideFragmentSteps, event){
         // Default style
         const defaultStyle = {
           'margin': '0px',
@@ -171,7 +160,7 @@ var Reveald3 = window.Reveald3 || (function(){
             }
             const iframeStyle = Object.assign(defaultStyle, inputtedStyle)
 
-            initialize(containerList[i], file, slideFragmentSteps, iframeStyle);
+            initialize(containerList[i], file, slideFragmentSteps, iframeStyle, event);
         }
     }
 
@@ -303,7 +292,7 @@ var Reveald3 = window.Reveald3 || (function(){
       }
     }
 
-    async function initialize(element, file, slideFragmentSteps, iframeStyle) {
+    async function initialize(element, file, slideFragmentSteps, iframeStyle, event) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
 
@@ -388,6 +377,9 @@ var Reveald3 = window.Reveald3 || (function(){
             fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
             for (let i=0; i<spansToCreate.length; i++){
                 fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
+            }
+            if (options.runLastState){
+              triggerLastState(event, iframe)
             }
         }); //onload
 
