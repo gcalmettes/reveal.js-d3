@@ -269,27 +269,22 @@ var Reveald3 = window.Reveald3 || (function(){
         return allIframes
     }
 
-    function doesFileExist(address) {
-        return new Promise (resolve => {
-            const client = new XMLHttpRequest();
-            client.onload = function() {
-                // in case of network errors this might not give reliable results
-                resolve(returnStatus(this.status, address));
+    function doesFileExist(fileUrl) {
+        return fetch(fileUrl, {
+            method: "head",
+            mode: "no-cors"
+          }).then(response => {
+            if (response.ok && response.status == 200) {
+                console.log("file exists!");
+                return true
+            } else {
+              console.log(`Couldn't locate "${fileUrl}", fallback to original url at "${fileUrl.slice(options.mapPath.length)}"`)
+                return false
             }
-            client.open( "HEAD", address, true);
-            client.send();
-        })
-    }
-  
-    function returnStatus(status, urlToFile) {
-      if ( status === 200 ) {
-        // console.log( 'file exists!' );
-        return true
-      }
-      else {
-        console.log(`Error ${status}. Couldn't locate "${urlToFile}", fallback to original url at "${urlToFile.slice(options.mapPath.length)}"`)
-        return false
-      }
+          })
+          .catch(function(error) {
+            console.log("Error ", error);
+          });
     }
 
     async function initialize(element, file, slideFragmentSteps, iframeStyle, event) {
