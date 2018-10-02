@@ -213,6 +213,11 @@ Reveal.initialize({
         // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
         // at the stipulated url with mapPath
         tryFallbackURL: false, // true/false, default false
+
+        // Checking for file existance has been reported to fail in rare 
+        // cases though files did exist. This option is to disable the file checking.
+        //see: https://github.com/gcalmettes/reveal.js-d3/issues/10
+        disableCheckFile: false, //default false
      },
 
 });
