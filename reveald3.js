@@ -28,6 +28,11 @@ var Reveald3 = window.Reveald3 || (function(){
           // If true, will try to locate the file at a fallback url without the mapPath prefix in case no file is found
           // at the stipulated url with mapPath
           tryFallbackURL: config.reveald3.tryFallbackURL == undefined ? !!config.reveald3.tryFallbackURL : config.reveald3.tryFallbackURL, //default false
+
+          // Checking for file existance has been reported to fail in rare 
+          // cases though files did exist. This option is to disable the file checking.
+          //see: https://github.com/gcalmettes/reveal.js-d3/issues/10
+          disableCheckFile: config.reveald3.disableCheckFile == undefined ? !!config.reveald3.disableCheckFile : config.reveald3.disableCheckFile,
         };
 
     // propagate keydown when focus is on iframe (child)
@@ -275,10 +280,10 @@ var Reveald3 = window.Reveald3 || (function(){
             mode: "no-cors"
           }).then(response => {
             if (response.ok && response.status == 200) {
-                console.log("file exists!");
+                // console.log("file exists!");
                 return true
             } else {
-              console.log(`Couldn't locate "${fileUrl}", fallback to original url at "${fileUrl.slice(options.mapPath.length)}"`)
+              console.log(`Couldn't locate "${fileUrl}", fallback to original url at "${fileUrl.slice(options.mapPath.length)}" if mapPath was set.`)
                 return false
             }
           })
@@ -300,7 +305,8 @@ var Reveald3 = window.Reveald3 || (function(){
         const iframeList = container.querySelectorAll('iframe')
         if (iframeList.length>0) return;
 
-        const fileExists = await doesFileExist( options.mapPath + file )
+        const fileExists = !options.disableCheckFile ? await doesFileExist( options.mapPath + file ) : true
+        console.log(fileExists)
         const filePath = (options.tryFallbackURL && fileExists) ? options.mapPath + file : file
 
         // generate styles string
