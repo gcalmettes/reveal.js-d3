@@ -382,6 +382,9 @@ var Reveald3 = window.Reveald3 || (function(){
             if (options.runLastState){
               triggerLastState(event, iframe)
             }
+            // patch from AffeAli.
+            // see https://github.com/gcalmettes/reveal.js-d3/issues/5#issuecomment-443797557
+            Reveal.layout()
         }); //onload
 
     }
