@@ -302,7 +302,6 @@ var Reveald3 = window.Reveald3 || (function(){
         container.style.overflow = (container.style.overflow=="" && !JSON.parse(container.getAttribute('data-overflow-shown'))) ? 'hidden' : container.style.overflow
 
         const fileExists = !options.disableCheckFile ? await doesFileExist( options.mapPath + file ) : true
-        console.log(fileExists)
         const filePath = (options.tryFallbackURL && fileExists) ? options.mapPath + file : file
 
         // continue only if iframe hasn't been created already for this container
