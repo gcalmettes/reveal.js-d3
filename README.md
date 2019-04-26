@@ -136,6 +136,11 @@ The trick above would work because by default the container hosting your iframe 
 </section>
 ```
 
+### Advanced configuration of the embedded iframe
+
+In addition to the `data-file` and `data-style` attributes (see above), some properties of the embedded iframe are directly configurable via dedicated attributes:
+
+- `data-scroll`: "yes" (default) / "no". Controls the [scrolling attribute](https://www.w3schools.com/tags/att_iframe_scrolling.asp) of the iframe.
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
