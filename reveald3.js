@@ -165,7 +165,14 @@ var Reveald3 = window.Reveald3 || (function(){
             }
             const iframeStyle = Object.assign(defaultStyle, inputtedStyle)
 
-            initialize(containerList[i], file, slideFragmentSteps, iframeStyle, event);
+            // special attribute(s) for iframe. So far ther is only data-scroll.
+            const iframeExtra = {
+              scrolling: containerList[i].getAttribute('data-scroll') 
+                ? containerList[i].getAttribute('data-scroll') 
+                : "yes"
+            }
+          
+            initialize(containerList[i], file, slideFragmentSteps, iframeStyle, iframeExtra, event);
         }
     }
 
@@ -292,7 +299,7 @@ var Reveald3 = window.Reveald3 || (function(){
           });
     }
 
-    async function initialize(element, file, slideFragmentSteps, iframeStyle, event) {
+    async function initialize(element, file, slideFragmentSteps, iframeStyle, iframeExtra, event) {
         // current current slide and container to host the visualization
         const [slide, container] = getSlideAndContainer(element)
 
@@ -317,7 +324,8 @@ var Reveald3 = window.Reveald3 || (function(){
             'class': 'iframe-visualization',
             'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
             'src': filePath,
-            'style': styles
+            'style': styles,
+            ...iframeExtra
         }
 
         const iframe = document.createElement('iframe')
