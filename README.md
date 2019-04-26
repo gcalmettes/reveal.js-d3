@@ -140,7 +140,7 @@ The trick above would work because by default the container hosting your iframe 
 
 In addition to the `data-file` and `data-style` attributes (see above), some properties of the embedded iframe are directly configurable via dedicated attributes:
 
-- `data-scroll`: "yes" (default) / "no". Controls the [scrolling attribute](https://www.w3schools.com/tags/att_iframe_scrolling.asp) of the iframe.
+- `data-scroll`: "yes" (default) / "no". Controls the [scrolling attribute](https://www.w3schools.com/tags/att_iframe_scrolling.asp) of the iframe. (Thanks [@nbremer](https://github.com/gcalmettes/reveal.js-d3/issues/12) for the suggestion)
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
