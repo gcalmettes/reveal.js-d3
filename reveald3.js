@@ -148,7 +148,8 @@ var Reveald3 = window.Reveald3 || (function(){
           'height': '100vh',
           'max-width': '100%',
           'max-height': '100%',
-          'z-index': 1
+          'z-index': 1,
+          'border': 0
         }
 
         for (let i = 0; i<containerList.length; i++ ) {
@@ -334,7 +335,19 @@ var Reveald3 = window.Reveald3 || (function(){
             iframe.setAttribute(key, iframeConfig[key])
         }
         // add iframe as child to div.fig-container
-        container.appendChild(iframe)
+        // if slide has background, insert iframe in front of it
+        const hasBckgDiv = Array.from(container.children)
+          .map(d => d.classList.contains("slide-background-content"))
+          .reduce((acc, cur, i) => {
+            acc = cur ? [cur, i] : acc
+            return acc
+          }, [false, null])
+
+        if (hasBckgDiv[0]) {
+          container.insertBefore(iframe, container.childNodes[hasBckgDiv[1]])
+        } else {
+          container.appendChild(iframe)
+        }
 
         //event to be triggered once iframe load is complete
         iframe.addEventListener("load", function () {
