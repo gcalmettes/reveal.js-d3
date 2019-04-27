@@ -13,14 +13,6 @@ var Reveald3 = window.Reveald3 || (function(){
           // discarded.
           runLastState: config.reveald3.runLastState == undefined ? !config.reveald3.runLastState : config.reveald3.runLastState, //default true
 
-          // If true, do not drop the iframe once the slide is not active anymore
-          // Default is false since keeping the iframes running can overwhelm the browser
-          // depending of the complexity of the visualization. The need for this option
-          // to be true is when the last fragment transition is not a state per se but
-          // the result of the multiple previous transitions, and the "triggerLastTransition"
-          // option is not sufficient to recover the last state.
-          keepIframe: config.reveald3.keepIframe == undefined ? !!config.reveald3.keepIframe : config.reveald3.keepIframe, // default: false
-
           // This will prefix the path attributes of the source html paths with the given path.
           // (by default "src" if set to true or with the specified path if string)
           mapPath: typeof(config.reveald3.mapPath) == 'string' ? config.reveald3.mapPath : ( config.reveald3.mapPath ? 'src' : '' ),
@@ -53,94 +45,71 @@ var Reveald3 = window.Reveald3 || (function(){
     // the D3 visualizations on the slides. The "ready" event is there only for the
     // specific case where there is a D3 visualization on first slide
     Reveal.addEventListener('ready', function( event ) {
-        handleSlideVisualizations(event)
+        initializeVisualizations(event)
     });
 
     Reveal.addEventListener('slidechanged', function( event ) {
-        handleSlideVisualizations(event)
+        // need to run last visualization state?
+        if (options.runLastState){
+          let allIframes = getAllIframes(event.currentSlide)
+          for (const iframe of allIframes) {
+            triggerLastState(event, iframe)
+          }  
+        }
     });
 
-    if (options.keepIframe){
-        // if iframes are kept, no need for rendering of last state when
-        // navigating back from slide.
-        options['runLastState'] = false;
+
+    function initializeVisualizations(event){
+      const allVizSlides = getAllVizSlides()
+      if(!Object.entries(allVizSlides).length) return;
+      // create all iframes with options
+      initializeAllIFrames(allVizSlides, event)
     }
 
-    if (!options.keepIframe){
-
-        Reveal.addEventListener('slidechanged', function( event ) {
-            // For performance, dump iframe visualization containers once the
-            // slide has changed so the browser is not overloaded with running iframes
-            let previousSlide = event.previousSlide
-            let allIframes = []
-            if (previousSlide){
-                const idx = Reveal.getIndices(previousSlide)
-                const iframeSlide = Array.prototype.slice.call(previousSlide.querySelectorAll('iframe'))
-                const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
-
-                // filter out non "iframe-visualization" iframes
-                allIframes = [].concat(...[iframeSlide, iframeBackground])
-                allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
-
-                for (let i=0; i<allIframes.length; i++){
-                    allIframes[i].remove()
-                }
-            }
-
-        });
+    function getAllVizSlides() {
+      const allVizSlides = Array.from(document.getElementsByClassName('fig-container'))
+        .reduce((acc, cur) => {
+          const slide = cur.tagName == 'SECTION' ? cur : cur.closest('section')
+          if (slide) {
+            // create name based on indices of the slide
+            const { h, v, f } = Reveal.getIndices(slide)
+            const name = `h-${h || null}/v-${v || null}/f-${f || null}`
+            acc[name] = acc[name]
+              ? Object.assign(acc[name], {
+                containers: [...acc[name].containers, {
+                    container: cur,
+                    file: cur.getAttribute('data-file'),
+                    preload: cur.hasAttribute('data-preload')
+                  }]})
+              : ({ 
+                  index: { h, v },
+                  slide,
+                  containers: [{
+                    container: cur,
+                    file: cur.getAttribute('data-file'),
+                    preload: cur.hasAttribute('data-preload')
+                  }],
+                  fragmentsInSlide: getUniqueFragmentIndices(slide)
+                })
+          }
+          return acc
+        }, {})
+      return allVizSlides
     }
 
-
-    function handleSlideVisualizations(event){
-        const currentSlide = event.currentSlide
-        let allContainers = getAllContainers(currentSlide)
-        if(!allContainers.length) return;
-        //fragments steps already in slide
-        let slideFragmentSteps = getUniqueFragmentIndices(event)
-
-        initializeAllVisualizations(allContainers, slideFragmentSteps, event)
+    function getUniqueFragmentIndices(slide){
+      let slideFragments = Array.prototype.slice.call(slide.querySelectorAll( '.fragment' ))
+      // filter out fragments created for transition steps, if any
+      slideFragments = slideFragments.filter(d => !d.getAttribute("class").split().includes("visualizationStep"))
+      let fragmentIndices = []
+      for (let i=0; i<slideFragments.length; i++){
+          fragmentIndices.push(parseInt(slideFragments[i].getAttribute( 'data-fragment-index' )))
+      }
+      fragmentIndices = [...new Set(fragmentIndices)];
+      return fragmentIndices
     }
 
-    function triggerLastState(event, iframe){
-        // If the previous slide is a slide further in the deck (i.e. we come back to
-        // slide from the next slide), trigger the last fragment transition to get the
-        // the last state
-        const currentSlide = event.currentSlide
-        const idxCurrent = Reveal.getIndices(currentSlide)
-        const idxPrevious = Reveal.getIndices(event.previousSlide)
-        if ((idxCurrent.h<idxPrevious.h) || idxCurrent.v<idxPrevious.v){
-            const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
-            if (allFragments.length==0) return
-            let allFragmentsIndices = []
-            for (let i=0; i< allFragments.length; i++){
-                allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
-            }
-            triggerTransition(iframe, Math.max.apply(null, allFragmentsIndices), 'forward')
-        }
-    }
-
-    function getAllContainers(slide){
-        let allContainers = slide.className.includes("fig-container") ? [slide] : []
-        const innerContainers = slide.querySelectorAll('.fig-container')
-        if (innerContainers.length>0) {
-            for (let i=0; i<innerContainers.length; i++){
-                allContainers.push(innerContainers[i])
-            }
-        }
-        return allContainers
-    }
-
-    function getSlideAndContainer(element){
-        const background = element.tagName == 'SECTION'
-        const slide = background ? element : element.closest('section')
-        const idx = Reveal.getIndices(slide)
-        const slide_background = background ? Reveal.getSlideBackground(idx.h, idx.v) : undefined;
-        const container = background ? slide_background : element;
-
-        return [slide, container]
-    }
-
-    function initializeAllVisualizations(containerList, slideFragmentSteps, event){
+    function initializeAllIFrames(allVizSlides, event){
         // Default style
         const defaultStyle = {
           'margin': '0px',
@@ -151,43 +120,202 @@ var Reveald3 = window.Reveald3 || (function(){
           'z-index': 1,
           'border': 0
         }
-
-        for (let i = 0; i<containerList.length; i++ ) {
-            const file = containerList[i].getAttribute('data-file')
-            
-            // get inputted iframe styles via the data-style attribute and parse it
-            const dataStyleString = containerList[i].getAttribute('data-style') ? containerList[i].getAttribute('data-style') : "";
-            // const regexStyle = /\s*([^;^\s]*)\s*:\s*([^;^\s]*)/g
-            const regexStyle = /\s*([^;^\s]*)\s*:\s*([^;^\s]*(\s*)?(!important)?)/g
-
-            let inputtedStyle = {}, matchStyleArray;
-            while (matchStyleArray = regexStyle.exec(dataStyleString)) {
-              inputtedStyle[matchStyleArray[1]] = matchStyleArray[2]
-            }
-            const iframeStyle = Object.assign(defaultStyle, inputtedStyle)
-
-            // special attribute(s) for iframe. So far ther is only data-scroll.
-            const iframeExtra = {
-              scrolling: containerList[i].getAttribute('data-scroll') 
-                ? containerList[i].getAttribute('data-scroll') 
-                : "yes"
-            }
-          
-            initialize(containerList[i], file, slideFragmentSteps, iframeStyle, iframeExtra, event);
+        
+        // loop over each slide containing at least one viz container
+        for (const vizSlide of Object.values(allVizSlides)) {
+          // loop over each viz object in the slide
+          for (const viz of vizSlide.containers ) {
+            const styles = getIframeStyle(viz)
+            // add iframe to slide
+            initialize({
+              index: vizSlide.index,
+              slide: vizSlide.slide,
+              container: viz.container,
+              file: viz.file,
+              preload: viz.preload,
+              fragmentsInSlide: vizSlide.fragmentsInSlide,
+              iframeStyle: styles.iframeStyle,
+              iframeExtra: styles.iframeExtra
+            }, event)          
+          }
         }
     }
 
-    function getUniqueFragmentIndices(event){
-        const slide = event.currentSlide
-        let slideFragments = Array.prototype.slice.call(slide.querySelectorAll( '.fragment' ))
-        // filter out fragments created for transition steps, if any
-        slideFragments = slideFragments.filter(d => !d.getAttribute("class").split().includes("visualizationStep"))
-        let fragmentIndices = []
-        for (let i=0; i<slideFragments.length; i++){
-            fragmentIndices.push(parseInt(slideFragments[i].getAttribute( 'data-fragment-index' )))
+    const getIframeStyle = viz => {
+      const defaultStyle = {
+          'margin': '0px',
+          'width': '100vw',
+          'height': '100vh',
+          'max-width': '100%',
+          'max-height': '100%',
+          'z-index': 1,
+          'border': 0
         }
-        fragmentIndices = [...new Set(fragmentIndices)];
-        return fragmentIndices
+
+      const dataStyleString = viz.container.getAttribute('data-style') ? viz.container.getAttribute('data-style') : "";
+      const regexStyle = /\s*([^;^\s]*)\s*:\s*([^;^\s]*(\s*)?(!important)?)/g
+
+      let inputtedStyle = {}, matchStyleArray;
+      while (matchStyleArray = regexStyle.exec(dataStyleString)) {
+        inputtedStyle[matchStyleArray[1]] = matchStyleArray[2]
+      }
+      const iframeStyle = Object.assign(defaultStyle, inputtedStyle)
+
+      // special attribute(s) for iframe. So far there is only data-scroll.
+      const iframeExtra = {
+        scrolling: viz.container.getAttribute('data-scroll') 
+          ? viz.container.getAttribute('data-scroll') 
+          : "yes"
+      }
+      return { iframeStyle, iframeExtra }
+    }
+
+    async function initialize(vizObject, event) {
+        const { index, slide, container, file, fragmentsInSlide, preload,
+                iframeStyle, iframeExtra } = vizObject
+
+        // by default hid overflow of container so combining iframe margins and height/width
+        // can be used to define an area without seeing the overflow.
+        // This can be overridden using the data-overflow-shown=true attribute
+        container.style.overflow = (container.style.overflow=="" && !JSON.parse(container.getAttribute('data-overflow-shown'))) ? 'hidden' : container.style.overflow
+
+        const fileExists = !options.disableCheckFile ? await doesFileExist( options.mapPath + file ) : true
+        const filePath = (options.tryFallbackURL && fileExists) ? options.mapPath + file : file
+
+        // continue only if iframe hasn't been created already for this container
+        const iframeList = container.querySelectorAll('iframe')
+        if (iframeList.length>0) return;
+
+        // generate styles string
+        const styles = Object.entries(iframeStyle)
+          .reduce((res, [key, value]) => `${res}${key}:${String(value).replace(/\s+/, " ")};`, "")
+
+        // create iframe to embed html file
+        let iframeConfig = {
+            'class': 'iframe-visualization',
+            'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
+            'style': styles,
+            ...iframeExtra
+        }
+        // handle case of viz in current slide
+        const src = slide == event.currentSlide 
+          ? {'src': filePath} 
+          : {'data-src': filePath} // compatible with Reveal.js lazy loading of iframes
+        // need to preload iframe if in the viewDistance window?
+        const preloading = preload 
+          ? { 'data-preload': true } 
+          : {}
+        iframeConfig = Object.assign(iframeConfig, {...src, ...preloading})
+       
+        const iframe = document.createElement('iframe')
+        for (let i=0; i<Object.keys(iframeConfig).length; i++){
+            const key = Object.keys(iframeConfig)[i]
+            iframe.setAttribute(key, iframeConfig[key])
+        }
+        // add iframe as child to div.fig-container
+        // if slide has background, insert iframe in front of it
+        const hasBackgroundDiv = Array.from(container.children)
+          .map(d => d.classList.contains("slide-background-content"))
+          .reduce((acc, cur, i) => {
+            acc = cur ? [cur, i] : acc
+            return acc
+          }, [false, null])
+
+        if (hasBackgroundDiv[0]) {
+          container.insertBefore(iframe, container.childNodes[hasBackgroundDiv[1]])
+        } else {
+          container.appendChild(iframe)
+        }
+
+        //event to be triggered once iframe load is complete
+        iframe.addEventListener("load", function () {
+            const fig = (iframe.contentWindow || iframe.contentDocument);
+
+            // add custom event listener to propatage key presses to parent
+            // https://stackoverflow.com/a/41361761/2503795
+            fig.addEventListener('keydown', function(e) {
+                const event = new CustomEvent('iframe-keydown', { detail: e });
+                window.parent.document.dispatchEvent(event)
+            });
+
+            ///////////////////////////////////////////////////////////////////////////
+            // If more than one visualization on the slide, intelligently create/update
+            // the data-fragment indices for each steps of each visualization, taking
+            // in account all the data-fragment-indices stipulated for each viz
+            //////////////////////////////////////////////////////////////////////////
+
+            // get all the visualization steps from all the visualizations on the slide
+            let nodeList = getAllIframes(slide)
+            let allVisualizationSteps = []
+            for (let i=0; i<nodeList.length; i++){
+                const iframe = nodeList[i];
+                const fig = (iframe.contentWindow || iframe.contentDocument);
+                if (fig._transitions) allVisualizationSteps.push(fig._transitions)
+            }
+
+            // get the corresponding data-fragment-index in the slide fragment context
+            // and see if new spans have to be created to trigger visualization steps
+            const [allVizStepsDict, spansToCreate] = generateVisualizationStepsIndices(allVisualizationSteps, fragmentsInSlide)
+
+            // store the visualization steps to be triggered in a variable attached to each iframe
+            for (let i=0; i<nodeList.length; i++){
+                const iframe = nodeList[i];
+                iframe.transitionSteps = allVizStepsDict[i];
+            }
+
+            // add spans fragments to trigger visualization steps
+            let fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
+            if (fragmentSpans.length < spansToCreate.length){
+                const nSpansToCreate = spansToCreate.length - fragmentSpans.length
+                for (let i=0; i<nSpansToCreate; i++){
+                    const spanFragment = document.createElement('span')
+                    spanFragment.setAttribute('class', 'fragment visualizationStep')
+                    slide.appendChild(spanFragment)
+                }
+            }
+            fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
+            for (let i=0; i<spansToCreate.length; i++){
+                fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
+            }
+            if (options.runLastState){
+              triggerLastState(event, iframe)
+            }
+            // patch from AffeAli.
+            // see https://github.com/gcalmettes/reveal.js-d3/issues/5#issuecomment-443797557
+            Reveal.layout()
+        }); //onload
+    }
+
+    function getAllIframes(slide){
+      const idx = Reveal.getIndices(slide)
+
+      // get all iframe in foreground and background of slide
+      // and convert NodeList to array
+      const iframeSlide = Array.prototype.slice.call(slide.querySelectorAll('iframe'))
+      const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
+
+      // filter out non "iframe-visualization" iframes
+      let allIframes = [].concat(...[iframeSlide, iframeBackground])
+      allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
+      return allIframes
+    }
+
+    function doesFileExist(fileUrl) {
+        return fetch(fileUrl, {
+            method: "head",
+            mode: "no-cors"
+          }).then(response => {
+            if (response.ok && response.status == 200) {
+                // console.log("file exists!");
+                return true
+            } else {
+              console.log(`Couldn't locate "${fileUrl}", fallback to original url at "${fileUrl.slice(options.mapPath.length)}" if mapPath was set.`)
+                return false
+            }
+          })
+          .catch(function(error) {
+            console.log("Error ", error);
+          });
     }
 
     function generateVisualizationStepsIndices(allVisualizationSteps, slideFragmentSteps){
@@ -268,145 +396,22 @@ var Reveald3 = window.Reveald3 || (function(){
         return [allVisualizationStepsIndices, uniqueAllVisualizationIndices.map(d => hashTable[d])]
     }
 
-    function getAllIframes(slide){
-        const idx = Reveal.getIndices(slide)
-
-        // get all iframe in foreground and background of slide
-        // and convert NodeList to array
-        const iframeSlide = Array.prototype.slice.call(slide.querySelectorAll('iframe'))
-        const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
-
-        // filter out non "iframe-visualization" iframes
-        let allIframes = [].concat(...[iframeSlide, iframeBackground])
-        allIframes = allIframes.filter(d => d.className.includes("iframe-visualization"))
-        return allIframes
-    }
-
-    function doesFileExist(fileUrl) {
-        return fetch(fileUrl, {
-            method: "head",
-            mode: "no-cors"
-          }).then(response => {
-            if (response.ok && response.status == 200) {
-                // console.log("file exists!");
-                return true
-            } else {
-              console.log(`Couldn't locate "${fileUrl}", fallback to original url at "${fileUrl.slice(options.mapPath.length)}" if mapPath was set.`)
-                return false
+    function triggerLastState(event, iframe){
+        // If the previous slide is a slide further in the deck (i.e. we come back to
+        // slide from the next slide), trigger the last fragment transition to get the
+        // the last state
+        const currentSlide = event.currentSlide
+        const idxCurrent = Reveal.getIndices(currentSlide)
+        const idxPrevious = Reveal.getIndices(event.previousSlide)
+        if ((idxCurrent.h<idxPrevious.h) || idxCurrent.v<idxPrevious.v){
+            const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
+            if (allFragments.length==0) return
+            let allFragmentsIndices = []
+            for (let i=0; i< allFragments.length; i++){
+                allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
             }
-          })
-          .catch(function(error) {
-            console.log("Error ", error);
-          });
-    }
-
-    async function initialize(element, file, slideFragmentSteps, iframeStyle, iframeExtra, event) {
-        // current current slide and container to host the visualization
-        const [slide, container] = getSlideAndContainer(element)
-
-        // by default hid overflow of container so combining iframe margins and height/width
-        // can be used to define an area without seeing the overflow.
-        // This can be overridden using the data-overflow-shown=true attribute
-        container.style.overflow = (container.style.overflow=="" && !JSON.parse(container.getAttribute('data-overflow-shown'))) ? 'hidden' : container.style.overflow
-
-        const fileExists = !options.disableCheckFile ? await doesFileExist( options.mapPath + file ) : true
-        const filePath = (options.tryFallbackURL && fileExists) ? options.mapPath + file : file
-
-        // continue only if iframe hasn't been created already for this container
-        const iframeList = container.querySelectorAll('iframe')
-        if (iframeList.length>0) return;
-
-        // generate styles string
-        const styles = Object.entries(iframeStyle)
-          .reduce((res, [key, value]) => `${res}${key}:${String(value).replace(/\s+/, " ")};`, "")
-
-        // create iframe to embed html file
-        let iframeConfig = {
-            'class': 'iframe-visualization',
-            'sandbox': 'allow-popups allow-scripts allow-forms allow-same-origin',
-            'src': filePath,
-            'style': styles,
-            ...iframeExtra
+            triggerTransition(iframe, Math.max.apply(null, allFragmentsIndices), 'forward')
         }
-
-        const iframe = document.createElement('iframe')
-        for (let i=0; i<Object.keys(iframeConfig).length; i++){
-            const key = Object.keys(iframeConfig)[i]
-            iframe.setAttribute(key, iframeConfig[key])
-        }
-        // add iframe as child to div.fig-container
-        // if slide has background, insert iframe in front of it
-        const hasBckgDiv = Array.from(container.children)
-          .map(d => d.classList.contains("slide-background-content"))
-          .reduce((acc, cur, i) => {
-            acc = cur ? [cur, i] : acc
-            return acc
-          }, [false, null])
-
-        if (hasBckgDiv[0]) {
-          container.insertBefore(iframe, container.childNodes[hasBckgDiv[1]])
-        } else {
-          container.appendChild(iframe)
-        }
-
-        //event to be triggered once iframe load is complete
-        iframe.addEventListener("load", function () {
-            const fig = (iframe.contentWindow || iframe.contentDocument);
-
-            // add custom event listener to propatage key presses to parent
-            // https://stackoverflow.com/a/41361761/2503795
-            fig.addEventListener('keydown', function(e) {
-                const event = new CustomEvent('iframe-keydown', { detail: e });
-                window.parent.document.dispatchEvent(event)
-            });
-
-            ///////////////////////////////////////////////////////////////////////////
-            // If more than one visualization on the slide, intelligently create/update
-            // the data-fragment indices for each steps of each visualization, taking
-            // in account all the data-fragment-indices stipulated for each viz
-            //////////////////////////////////////////////////////////////////////////
-
-            // get all the visualization steps from all the visualizations on the slide
-            let nodeList = getAllIframes(slide)
-            let allVisualizationSteps = []
-            for (let i=0; i<nodeList.length; i++){
-                const iframe = nodeList[i];
-                const fig = (iframe.contentWindow || iframe.contentDocument);
-                allVisualizationSteps.push(fig._transitions)
-            }
-
-            // get the corresponding data-fragment-index in the slide fragment context
-            // and see if new spans have to be created to trigger visualization steps
-            const [allVizStepsDict, spansToCreate] = generateVisualizationStepsIndices(allVisualizationSteps, slideFragmentSteps)
-
-            // store the visualization steps to be triggered in a variable attached to each iframe
-            for (let i=0; i<nodeList.length; i++){
-                const iframe = nodeList[i];
-                iframe.transitionSteps = allVizStepsDict[i];
-            }
-
-            // add spans fragments to trigger visualization steps
-            let fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
-            if (fragmentSpans.length < spansToCreate.length){
-                const nSpansToCreate = spansToCreate.length - fragmentSpans.length
-                for (let i=0; i<nSpansToCreate; i++){
-                    const spanFragment = document.createElement('span')
-                    spanFragment.setAttribute('class', 'fragment visualizationStep')
-                    slide.appendChild(spanFragment)
-                }
-            }
-            fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
-            for (let i=0; i<spansToCreate.length; i++){
-                fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
-            }
-            if (options.runLastState){
-              triggerLastState(event, iframe)
-            }
-            // patch from AffeAli.
-            // see https://github.com/gcalmettes/reveal.js-d3/issues/5#issuecomment-443797557
-            Reveal.layout()
-        }); //onload
-
     }
 
 
