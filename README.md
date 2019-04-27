@@ -141,6 +141,7 @@ The trick above would work because by default the container hosting your iframe 
 In addition to the `data-file` and `data-style` attributes (see above), some properties of the embedded iframe are directly configurable via dedicated attributes:
 
 - `data-scroll`: "yes" (default) / "no". Controls the [scrolling attribute](https://www.w3schools.com/tags/att_iframe_scrolling.asp) of the iframe. (Thanks [@nbremer](https://github.com/gcalmettes/reveal.js-d3/issues/12) for the suggestion)
+- lazy loading: this plugin is compatible with the [lazy loading option of Reveal.js](https://github.com/hakimel/reveal.js#lazy-loading). To lazy load the iframe, set the [`viewDistance` option in the Reveal configuration](https://github.com/hakimel/reveal.js#configuration) and add the `data-preload` attribute to your container.
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
@@ -199,17 +200,6 @@ Reveal.initialize({
         // or is a very resource-intensive task or there is no need to
         // retrieve the last state of the visualization).
         runLastState: true, // true/false, default: true
-
-        // Specifies if iframes (that host the visualization) have to be kept
-        // on the slide once the slide is not active anymore (e.g.: navigating 
-        // to next slide). If true, the current visualization will be kept 
-        // active so that its state will be the one displayed if we navigate 
-        // back to the slide. This is false by default, as it can be the source
-        // of performance issues if complex visualizations (e.g. force layout)
-        // are displayed and kept in the background.
-        // Also, see the runLastState option as a simpler less 
-        // resource-demanding alternative.
-        keepIframe: false // true/false, default: false
 
         // This will prefix the path attributes of the source html paths with the given path.
         // (by default "src" if set to true or with the specified path if string)
