@@ -199,7 +199,7 @@ var Reveald3 = window.Reveald3 || (function(){
         }
         // handle case of viz in current slide
         const src = slide == event.currentSlide 
-          ? {'src': filePath} 
+          ? {'src': filePath, 'data-lazy-loaded': '' } 
           : {'data-src': filePath} // compatible with Reveal.js lazy loading of iframes
         // need to preload iframe if in the viewDistance window?
         const preloading = preload 
