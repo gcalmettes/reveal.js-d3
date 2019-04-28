@@ -4,7 +4,8 @@
 
 ## Browser compatibility:
 
-The plugin should work with the latest versions of Chrome, Firefox and Safari.
+I recommend using a recent version of the Chrome browser when presenting a Reveal.js presentation making use of this plugin.
+(The plugin is compatible with Firefox and Safari, but compatibility with the lazy-loading options depends on the version used.)
 
 ## Principal features:
 
