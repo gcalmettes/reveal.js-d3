@@ -85,7 +85,9 @@ To embed more than one visualization, simply create multiple containers:
 </section>
 ```
 
-You can also embed the visualization in the background of the slide by adding the `fig-container` class directly to the `section` element of your Reveal.js code.
+##### Note on background insertion:
+
+You can also embed the visualization in the background of the slide by adding the `fig-container` class directly to the `section` element of your Reveal.js code. Note that by default when you embed a visualization in the background, it will be considered as a true [Reveal.js slide background](https://github.com/hakimel/reveal.js#slide-backgrounds) (can extend outside of the slide area). If you still want your embedded content to be contained within the limited portion of the screen defined by the slide area, you can add the `data-no-background` attribute (see [Advanced configuration](https://github.com/gcalmettes/reveal.js-d3#advanced-configuration-of-the-embedded-iframe))
 
 ```html
 <section class="fig-container"
@@ -143,6 +145,7 @@ In addition to the `data-file` and `data-style` attributes (see above), some pro
 
 - `data-scroll`: "yes" (default) / "no". Controls the [scrolling attribute](https://www.w3schools.com/tags/att_iframe_scrolling.asp) of the iframe. (Thanks [@nbremer](https://github.com/gcalmettes/reveal.js-d3/issues/12) for the suggestion)
 - `data-preload` (lazy loading): this plugin is compatible with the [lazy loading option of Reveal.js](https://github.com/hakimel/reveal.js#lazy-loading). To lazy load the iframe, set the [`viewDistance` option in the Reveal configuration](https://github.com/hakimel/reveal.js#configuration) and add the `data-preload` attribute to your container. See the [demo](https://gcalmettes.github.io/reveal.js-d3/demo/) to see this feature in action.
+- `data-no-background`: When you embed a visualization in the background, it will be considered as a true [Reveal.js slide background](https://github.com/hakimel/reveal.js#slide-backgrounds) (and so it can extend outside of the slide area). If you want your embedded content to be contained within the limited portion of the screen defined by the slide area, you can add the `data-no-background` attribute to the `<section>` tag. See the [demo](https://gcalmettes.github.io/reveal.js-d3/demo/) to see this feature in action.
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
