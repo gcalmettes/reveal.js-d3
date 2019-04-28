@@ -321,12 +321,11 @@ var Reveald3 = window.Reveald3 || (function(){
     }
 
     function getAllIframes(slide){
-      const idx = Reveal.getIndices(slide)
-
       // get all iframe in foreground and background of slide
       // and convert NodeList to array
+      const backgroundSlide = Reveal.getSlideBackground(slide)
       const iframeSlide = Array.prototype.slice.call(slide.querySelectorAll('iframe'))
-      const iframeBackground = Array.prototype.slice.call(Reveal.getSlideBackground(idx.h, idx.v).querySelectorAll('iframe'))
+      const iframeBackground = Array.prototype.slice.call(backgroundSlide.querySelectorAll('iframe'))
 
       // filter out non "iframe-visualization" iframes
       let allIframes = [].concat(...[iframeSlide, iframeBackground])
