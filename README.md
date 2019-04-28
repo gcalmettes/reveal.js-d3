@@ -87,11 +87,37 @@ To embed more than one visualization, simply create multiple containers:
 
 ##### Note on background insertion:
 
-You can also embed the visualization in the background of the slide by adding the `fig-container` class directly to the `section` element of your Reveal.js code. Note that by default when you embed a visualization in the background, it will be considered as a true [Reveal.js slide background](https://github.com/hakimel/reveal.js#slide-backgrounds) (can extend outside of the slide area). If you still want your embedded content to be contained within the limited portion of the screen defined by the slide area, you can add the `data-no-background` attribute (see [Advanced configuration](https://github.com/gcalmettes/reveal.js-d3#advanced-configuration-of-the-embedded-iframe))
+You can also embed the visualization in the background of the slide by adding the `fig-container` class directly to the `section` element of your Reveal.js code. Note that by default when you embed a visualization in the background, it will be considered as a true [Reveal.js slide background](https://github.com/hakimel/reveal.js#slide-backgrounds) (meaning it can an extend outside of the slide area). If you still want your embedded content to be contained within the limited portion of the screen defined by the slide area, you can add the `data-no-background` attribute (see [Advanced configuration](https://github.com/gcalmettes/reveal.js-d3#advanced-configuration-of-the-embedded-iframe)).
+
+It is very important NOT to insert the background iframe with Reveal.js's own `data-background-iframe` attribute. Just add the `fig-container` class to the `<section>` (with or without the `data-no-background` attribute described above and the `data-preload` attribute described in the advanced configuration section).
+
+**DO THIS:**
 
 ```html
 <section class="fig-container"
         data-file="d3-fig/collision-detection.html">
+    <h2>Some title</h2>
+
+    <p>some text</p>
+</section>
+
+// or with data-no-background for keeping the visualization inside the
+// boundaries of the slide
+
+<section class="fig-container"
+        data-file="d3-fig/collision-detection.html"
+        data-no-background>
+    <h2>Some title</h2>
+
+    <p>some text</p>
+</section>
+```
+
+**DO NOT DO THIS:**
+
+```html
+<section class="fig-container"
+         data-background-iframe="d3-fig/collision-detection.html">
     <h2>Some title</h2>
 
     <p>some text</p>
