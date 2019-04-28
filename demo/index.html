@@ -44,12 +44,25 @@
         <div class="col-50 no-margin-top">
             <p class="no-margin-top small">
             <a href='https://bl.ocks.org/olearym/ec27b9ac1bf0da42ed8a0d533181693b' target='_blank'>Gooey effect - Hexagon</a> by Nadieh Bremer</p>
-        <div class="fig-container no-margin-top" data-file="d3-fig/gooey.html"></div>
+            <div class="fig-container no-margin-top" data-file="d3-fig/gooey.html"></div>
         </div>
         <div class="col-50 no-margin-top">
             <p class="no-margin-top small">
             <a href='https://bl.ocks.org/olearym/ec27b9ac1bf0da42ed8a0d533181693b' target='_blank'>Modular Multiplication Circle</a> by Megan O'Leary</p>
-        <div class="fig-container no-margin-top" data-file="d3-fig/modular-multiplication.html"></div>
+            <div class="fig-container no-margin-top" data-file="d3-fig/modular-multiplication.html"></div>
+        </div>
+</section>
+
+<section>
+    <h3>Compatible with Reveal.js's lazy loading</h3>
+    <div class="row no-margin-top">
+        <div class="col-50 no-margin-top">
+            <p class="no-margin-top small"> Not preloaded </p>
+            <div class="fig-container no-margin-top" data-file="d3-fig/gooey.html"></div>
+        </div>
+        <div class="col-50 no-margin-top">
+            <p class="no-margin-top small"> Preloaded </p>
+            <div class="fig-container no-margin-top" data-file="d3-fig/gooey.html" data-preload></div>
         </div>
 </section>
 
@@ -98,11 +111,11 @@
     <div class="row no-margin-top">
         <div class="col-45">
             <p class="small no-margin-top">(<a href='https://emeeks.github.io/semiotic/#/semiotic/creatingbarchart' target='_blank'>Simple bar chart example</a>)</p>
-            <div class="fig-container" data-file="d3-fig/semiotic-animated-bar.html"></div>
+            <div class="fig-container" data-file="d3-fig/semiotic-animated-bar.html" data-preload></div>
         </div>
         <div class="col-55 no-margin-top">
             <p class="small no-margin-top">(<a href='https://emeeks.github.io/semiotic/#/semiotic/chord' target='_blank'>Chord diagram example</a>)</p>
-            <div class="fig-container" data-file="d3-fig/semiotic-chord.html"></div>
+            <div class="fig-container" data-file="d3-fig/semiotic-chord.html" data-preload></div>
         </div>
   </div>
 </section>
@@ -110,7 +123,7 @@
 <section>
     <h3>Works with other libraries too (2)</h3>
     <p class="no-margin-top">This is an embedded <a href='https://vega.github.io/vega-lite/' target='_blank'>vega-lite</a> figure! (with tooltip enabled)</p>
-    <div class="fig-container" data-file="d3-fig/vega-lite-scatter.html"></div>
+    <div class="fig-container" data-file="d3-fig/vega-lite-scatter.html" data-preload></div>
 </section>
 
 <!-- Include a beautiful website directly in your presentation -->
@@ -166,6 +179,7 @@ Reveal.initialize({
     history: true,
     center: false,
     transition: 'fade',
+    viewDistance: 3, // to lazy load iframes
 
     // // optional configurations for reveald3
     reveald3: {
@@ -176,18 +190,6 @@ Reveal.initialize({
          // the state the simulation was in when we left the slide. This can be
          // discarded.
          runLastState: true, //default true
-
-         // Specifies if iframes (that host the visualization) have to be kept
-         // on the slide once the slide is not active anymore (e.g.: navigating
-         // to next slide). If true, the current visualization will be kept
-         // active so that its state will be the one displayed if we navigate
-         // back to the slide. This is false by default, as it can be the source
-         // of performance issues if complex visualizations (e.g. force layout)
-         // are displayed and kept in the background.
-         // Also, see the runLastState option as a simpler less
-         // resource-demanding alternative.
-         keepIframe: false, // default: false
-
 
          // This will prefix the path attributes of the source html paths with the given path.
          // (by default "src" if set to true or with the specified path if string)
@@ -200,7 +202,7 @@ Reveal.initialize({
          // Checking for file existance has been reported to fail in rare 
          // cases though files did exist. This option is to disable the file checking.
          //see: https://github.com/gcalmettes/reveal.js-d3/issues/10
-         disableCheckFile: false, //default false
+         disableCheckFile: false, //default false,
     },
 
     // Reveal.js plugins
