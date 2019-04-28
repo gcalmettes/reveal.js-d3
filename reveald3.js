@@ -45,26 +45,47 @@ var Reveald3 = window.Reveald3 || (function(){
     // the D3 visualizations on the slides. The "ready" event is there only for the
     // specific case where there is a D3 visualization on first slide
     Reveal.addEventListener('ready', function( event ) {
-        initializeVisualizations(event)
+        initializeAllVisualizations()
     });
 
     Reveal.addEventListener('slidechanged', function( event ) {
         // need to run last visualization state?
-        if (options.runLastState){
-          let allIframes = getAllIframes(event.currentSlide)
+        const { currentSlide, previousSlide } = event
+        if (options.runLastState && isNavigationBack({ currentSlide, previousSlide })){
+          let allIframes = getAllIframes(currentSlide)
           for (const iframe of allIframes) {
-            triggerLastState(event, iframe)
+            triggerLastState({ currentSlide, previousSlide }, iframe)
           }  
         }
     });
 
 
-    function initializeVisualizations(event){
+    function initializeAllVisualizations(){
       const allVizSlides = getAllVizSlides()
-      if(!Object.entries(allVizSlides).length) return;
-      // create all iframes with options
-      initializeAllIFrames(allVizSlides, event)
+
+      const currentSlide = Reveal.getCurrentSlide()
+        
+      // loop over each slide containing at least one viz container
+      for ( const vizSlide of Object.values(allVizSlides) ) {
+        // loop over each viz object in the slide
+        for ( const viz of vizSlide.containers ) {
+          const styles = getIframeStyle(viz)
+          // add iframe to slide
+          initialize({
+            onCurrentSlide: vizSlide.slide == currentSlide,
+            index: vizSlide.index,
+            slide: vizSlide.slide,
+            container: viz.container,
+            file: viz.file,
+            preload: viz.preload,
+            fragmentsInSlide: vizSlide.fragmentsInSlide,
+            iframeStyle: styles.iframeStyle,
+            iframeExtra: styles.iframeExtra
+          })          
+        }
+      }    
     }
+
 
     function getAllVizSlides() {
       const allVizSlides = Array.from(document.getElementsByClassName('fig-container'))
@@ -109,37 +130,6 @@ var Reveald3 = window.Reveald3 || (function(){
       return fragmentIndices
     }
 
-    function initializeAllIFrames(allVizSlides, event){
-        // Default style
-        const defaultStyle = {
-          'margin': '0px',
-          'width': '100vw',
-          'height': '100vh',
-          'max-width': '100%',
-          'max-height': '100%',
-          'z-index': 1,
-          'border': 0
-        }
-        
-        // loop over each slide containing at least one viz container
-        for (const vizSlide of Object.values(allVizSlides)) {
-          // loop over each viz object in the slide
-          for (const viz of vizSlide.containers ) {
-            const styles = getIframeStyle(viz)
-            // add iframe to slide
-            initialize({
-              index: vizSlide.index,
-              slide: vizSlide.slide,
-              container: viz.container,
-              file: viz.file,
-              preload: viz.preload,
-              fragmentsInSlide: vizSlide.fragmentsInSlide,
-              iframeStyle: styles.iframeStyle,
-              iframeExtra: styles.iframeExtra
-            }, event)          
-          }
-        }
-    }
 
     const getIframeStyle = viz => {
       const defaultStyle = {
@@ -170,8 +160,8 @@ var Reveald3 = window.Reveald3 || (function(){
       return { iframeStyle, iframeExtra }
     }
 
-    async function initialize(vizObject, event) {
-        const { index, slide, container, file, fragmentsInSlide, preload,
+    async function initialize(vizObject) {
+        const { onCurrentSlide, index, slide, container, file, fragmentsInSlide, preload,
                 iframeStyle, iframeExtra } = vizObject
 
         // by default hid overflow of container so combining iframe margins and height/width
@@ -198,7 +188,7 @@ var Reveald3 = window.Reveald3 || (function(){
             ...iframeExtra
         }
         // handle case of viz in current slide
-        const src = slide == event.currentSlide 
+        const src = onCurrentSlide 
           ? {'src': filePath, 'data-lazy-loaded': '' } 
           : {'data-src': filePath} // compatible with Reveal.js lazy loading of iframes
         // need to preload iframe if in the viewDistance window?
@@ -208,9 +198,8 @@ var Reveald3 = window.Reveald3 || (function(){
         iframeConfig = Object.assign(iframeConfig, {...src, ...preloading})
        
         const iframe = document.createElement('iframe')
-        for (let i=0; i<Object.keys(iframeConfig).length; i++){
-            const key = Object.keys(iframeConfig)[i]
-            iframe.setAttribute(key, iframeConfig[key])
+        for (const [key, value] of Object.entries(iframeConfig)){
+            iframe.setAttribute(key, value)
         }
         // add iframe as child to div.fig-container
         // if slide has background, insert iframe in front of it
@@ -234,8 +223,8 @@ var Reveald3 = window.Reveald3 || (function(){
             // add custom event listener to propatage key presses to parent
             // https://stackoverflow.com/a/41361761/2503795
             fig.addEventListener('keydown', function(e) {
-                const event = new CustomEvent('iframe-keydown', { detail: e });
-                window.parent.document.dispatchEvent(event)
+                const customEvent = new CustomEvent('iframe-keydown', { detail: e });
+                window.parent.document.dispatchEvent(customEvent)
             });
 
             ///////////////////////////////////////////////////////////////////////////
@@ -247,9 +236,8 @@ var Reveald3 = window.Reveald3 || (function(){
             // get all the visualization steps from all the visualizations on the slide
             let nodeList = getAllIframes(slide)
             let allVisualizationSteps = []
-            for (let i=0; i<nodeList.length; i++){
-                const iframe = nodeList[i];
-                const fig = (iframe.contentWindow || iframe.contentDocument);
+            for (const node of nodeList){
+                const fig = (node.contentWindow || node.contentDocument);
                 if (fig._transitions) allVisualizationSteps.push(fig._transitions)
             }
 
@@ -258,9 +246,8 @@ var Reveald3 = window.Reveald3 || (function(){
             const [allVizStepsDict, spansToCreate] = generateVisualizationStepsIndices(allVisualizationSteps, fragmentsInSlide)
 
             // store the visualization steps to be triggered in a variable attached to each iframe
-            for (let i=0; i<nodeList.length; i++){
-                const iframe = nodeList[i];
-                iframe.transitionSteps = allVizStepsDict[i];
+            for (let i=0; i<nodeList.length ; i++){
+                nodeList[i].transitionSteps = allVizStepsDict[i];
             }
 
             // add spans fragments to trigger visualization steps
@@ -277,8 +264,10 @@ var Reveald3 = window.Reveald3 || (function(){
             for (let i=0; i<spansToCreate.length; i++){
                 fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
             }
-            if (options.runLastState){
-              triggerLastState(event, iframe)
+            // need to run some extra?
+            const currentSlide = Reveal.getCurrentSlide()
+            if (options.runLastState && (slide == currentSlide)){
+              triggerLastState(iframe)
             }
             // patch from AffeAli.
             // see https://github.com/gcalmettes/reveal.js-d3/issues/5#issuecomment-443797557
@@ -392,18 +381,16 @@ var Reveald3 = window.Reveald3 || (function(){
                 allVisualizationStepsIndices.push(visualizationStepsIndices)
             }
         }
-
         return [allVisualizationStepsIndices, uniqueAllVisualizationIndices.map(d => hashTable[d])]
     }
 
-    function triggerLastState(event, iframe){
+    function triggerLastState(iframe){
         // If the previous slide is a slide further in the deck (i.e. we come back to
         // slide from the next slide), trigger the last fragment transition to get the
         // the last state
-        const currentSlide = event.currentSlide
-        const idxCurrent = Reveal.getIndices(currentSlide)
-        const idxPrevious = Reveal.getIndices(event.previousSlide)
-        if ((idxCurrent.h<idxPrevious.h) || idxCurrent.v<idxPrevious.v){
+        const currentSlide = Reveal.getCurrentSlide()
+        const previousSlide = Reveal.getPreviousSlide()
+        if (isNavigationBack({ currentSlide, previousSlide })) {
             const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
             if (allFragments.length==0) return
             let allFragmentsIndices = []
@@ -412,6 +399,13 @@ var Reveald3 = window.Reveald3 || (function(){
             }
             triggerTransition(iframe, Math.max.apply(null, allFragmentsIndices), 'forward')
         }
+    }
+
+    function isNavigationBack(slides) {
+        const { currentSlide, previousSlide } = slides
+        const idxCurrent = Reveal.getIndices(currentSlide)
+        const idxPrevious = Reveal.getIndices(previousSlide)
+        return (idxCurrent.h<idxPrevious.h) || (idxCurrent.v<idxPrevious.v)
     }
 
 
