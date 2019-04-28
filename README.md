@@ -11,8 +11,9 @@ The plugin should work with the latest versions of Chrome, Firefox and Safari.
 The development of this plugin has been inspired by [Reveal.js-d3js-plugin](https://github.com/jlegewie/reveal.js-d3js-plugin), but has some major differences:
 - the plugin itself is not dependent on `D3` and does not require to add `D3` as a dependencies of Reveal.js
 - the visualizations are loaded only when the slide hosting them becomes active (to prevent performance issues).
-- the visualizations are removed when the slide is not active anymore (e.g.: navigation to previous/next slide) so the browser is not overloaded by running multiples iframes in the background (this behavior [can be configured](#configuration)).
-- this plugin support the insertion of multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into those kind of things).
+- the plugin is compatible with Reveal.js lazy loading configurations (see [Advanced configuration](https://github.com/gcalmettes/reveal.js-d3#advanced-configuration-of-the-embedded-iframe)) if you need to pre-load some heavy visualizations before the slide becomes active.
+- the visualizations are deloaded when the slide is not active anymore (e.g.: navigation to previous/next slide) or is out of the `viewDistance` option of Reveal.js. So the browser is not overloaded by running multiples iframes in the background.
+- this plugin support the insertion of multiple visualizations on the same slide (and even multiple visualizations on the same slide + visualization on the background, if you're into this kind of things).
 - the triggering of the transitions for the visualizations is fully compatible with Reveal.js [`data-fragment-index`](https://github.com/hakimel/reveal.js/#fragments) feature.
 - Any javascript-based visualizations are supported (slide examples: [D3 visualizations](https://gcalmettes.github.io/reveal.js-d3/demo/#/3), [Semiotic (React-based) visualisations](https://gcalmettes.github.io/reveal.js-d3/demo/#/5), [Vega-lite (declarative javascript) visualizations](https://gcalmettes.github.io/reveal.js-d3/demo/#/6), etc ...).
 
@@ -141,7 +142,7 @@ The trick above would work because by default the container hosting your iframe 
 In addition to the `data-file` and `data-style` attributes (see above), some properties of the embedded iframe are directly configurable via dedicated attributes:
 
 - `data-scroll`: "yes" (default) / "no". Controls the [scrolling attribute](https://www.w3schools.com/tags/att_iframe_scrolling.asp) of the iframe. (Thanks [@nbremer](https://github.com/gcalmettes/reveal.js-d3/issues/12) for the suggestion)
-- lazy loading: this plugin is compatible with the [lazy loading option of Reveal.js](https://github.com/hakimel/reveal.js#lazy-loading). To lazy load the iframe, set the [`viewDistance` option in the Reveal configuration](https://github.com/hakimel/reveal.js#configuration) and add the `data-preload` attribute to your container.
+- `data-preload` (lazy loading): this plugin is compatible with the [lazy loading option of Reveal.js](https://github.com/hakimel/reveal.js#lazy-loading). To lazy load the iframe, set the [`viewDistance` option in the Reveal configuration](https://github.com/hakimel/reveal.js#configuration) and add the `data-preload` attribute to your container. See the [demo](https://gcalmettes.github.io/reveal.js-d3/demo/) to see this feature in action.
 
 ### Adding and controlling animations/transitions for the visualization(s)
 
