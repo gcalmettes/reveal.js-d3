@@ -251,12 +251,19 @@ var Reveald3 = window.Reveald3 || (function(){
             }
 
             // add spans fragments to trigger visualization steps
+            const currentSlide = Reveal.getCurrentSlide()
+            const previousSlide = Reveal.getPreviousSlide()
+            const isNavBack = isNavigationBack({ currentSlide, previousSlide })
             let fragmentSpans = slide.querySelectorAll('.fragment.visualizationStep')
             if (fragmentSpans.length < spansToCreate.length){
                 const nSpansToCreate = spansToCreate.length - fragmentSpans.length
                 for (let i=0; i<nSpansToCreate; i++){
                     const spanFragment = document.createElement('span')
-                    spanFragment.setAttribute('class', 'fragment visualizationStep')
+                    if (isNavBack) {
+                      spanFragment.setAttribute('class', 'fragment visualizationStep visible')
+                    } else {
+                      spanFragment.setAttribute('class', 'fragment visualizationStep')
+                    }
                     slide.appendChild(spanFragment)
                 }
             }
@@ -265,7 +272,6 @@ var Reveald3 = window.Reveald3 || (function(){
                 fragmentSpans[i].setAttribute('data-fragment-index', spansToCreate[i])
             }
             // need to run some extra?
-            const currentSlide = Reveal.getCurrentSlide()
             if (options.runLastState && (slide == currentSlide)){
               triggerLastState(iframe)
             }
