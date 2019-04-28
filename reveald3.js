@@ -236,7 +236,6 @@ var Reveald3 = window.Reveald3 || (function(){
         } else {
           container.appendChild(iframe)
         }
-        
 
         //event to be triggered once iframe load is complete
         iframe.addEventListener("load", function () {
@@ -275,7 +274,7 @@ var Reveald3 = window.Reveald3 || (function(){
 
             // store the visualization steps to be triggered in a variable attached to each iframe
             for (let i=0; i<nodeList.length ; i++){
-                nodeList[i].transitionSteps = allVizStepsDict[i];
+              nodeList[i].transitionSteps = allVizStepsDict[i];
             }
 
             // add spans fragments to trigger visualization steps
@@ -303,7 +302,12 @@ var Reveald3 = window.Reveald3 || (function(){
             }
             // need to run some extra?
             if (options.runLastState && (slide == currentSlide)){
-              triggerLastState(iframe)
+              // trigger only if all iframe have gotten their correct transition list
+              if (iframe == nodeList[nodeList.length-1]) {
+                  for (const node of nodeList) {
+                    triggerLastState(node)
+                  }
+              }
             }
             // patch from AffeAli.
             // see https://github.com/gcalmettes/reveal.js-d3/issues/5#issuecomment-443797557
