@@ -187,10 +187,11 @@ var Reveald3 = window.Reveald3 || (function(){
             'style': styles,
             ...iframeExtra
         }
-        // handle case of viz in current slide
+        // handle case of viz in current slide and ensure compatibility
+        // with Reveal.js lazy loading capability of iframes
         const src = onCurrentSlide 
           ? {'src': filePath, 'data-lazy-loaded': '' } 
-          : {'data-src': filePath} // compatible with Reveal.js lazy loading of iframes
+          : {'data-src': filePath}
         // need to preload iframe if in the viewDistance window?
         const preloading = preload 
           ? { 'data-preload': true } 
@@ -260,6 +261,8 @@ var Reveald3 = window.Reveald3 || (function(){
                 for (let i=0; i<nSpansToCreate; i++){
                     const spanFragment = document.createElement('span')
                     if (isNavBack) {
+                      // ensure the fragments will be ran even if first time loaded
+                      // and navigating from a latter slide,
                       spanFragment.setAttribute('class', 'fragment visualizationStep visible')
                     } else {
                       spanFragment.setAttribute('class', 'fragment visualizationStep')
@@ -458,7 +461,6 @@ var Reveald3 = window.Reveald3 || (function(){
             if ((iframe.transitionSteps) && (iframe.transitionSteps[currentStep])) {
                (iframe.transitionSteps[currentStep].transitionForward || Function)()
             }
-
         } else {
             if ((iframe.transitionSteps) && (iframe.transitionSteps[currentStep])) {
                (iframe.transitionSteps[currentStep].transitionBackward || Function)()
@@ -469,13 +471,10 @@ var Reveald3 = window.Reveald3 || (function(){
     function handleFragments(event, direction){
         //get data-fragment-index of current step
         let currentStep = parseInt(event.fragments[0].getAttribute('data-fragment-index'))
-
         // forward transition
         const slide = event.fragment.closest('section')
-
         // get all iframe embedding visualisations
         let allIframes = getAllIframes(slide)
-
         triggerAllTransitions(allIframes, currentStep, direction)
     }
 
