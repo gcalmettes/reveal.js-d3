@@ -54,7 +54,7 @@ var Reveald3 = window.Reveald3 || (function(){
         if (options.runLastState && isNavigationBack({ currentSlide, previousSlide })){
           let allIframes = getAllIframes(currentSlide)
           for (const iframe of allIframes) {
-            triggerLastState({ currentSlide, previousSlide }, iframe)
+            triggerLastState(iframe)
           }  
         }
     });
