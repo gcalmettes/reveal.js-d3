@@ -42,13 +42,28 @@ var Reveald3 = window.Reveald3 || (function(){
     /////////////////////////////////////////////////////////////////////
 
     // Both "ready" and "slidechanged" Revealjs eventListeners are added to load
-    // the D3 visualizations on the slides. The "ready" event is there only for the
-    // specific case where there is a D3 visualization on first slide
+    // the D3 visualizations on the slides. The "slidechanged" event is there only for the
+    // specific case of the background slides which are recreated by Reveal.js on each
+    // slide change. This is also why we need to keep a reference of all the background
+    // slides
+
+    let backgroundSlides
+    const horizontalSlidesLength = Array.from( document.querySelectorAll( '.slides>section' ) ).length
+
     Reveal.addEventListener('ready', function( event ) {
-        initializeAllVisualizations()
+      const { slides, backgrounds} = getAllVizSlides()
+        backgroundSlides = backgrounds
+        initializeAllVisualizations(slides)
+        updateBackgroundSlides(event)
     });
 
     Reveal.addEventListener('slidechanged', function( event ) {
+        const isOverView = Reveal.getState().overview
+        if (isOverView) {
+          clearBackgrounds()
+        }
+        // create background iframes if needed
+        updateBackgroundSlides(event, isOverView)
         // need to run last visualization state?
         const { currentSlide, previousSlide } = event
         if (options.runLastState && isNavigationBack({ currentSlide, previousSlide })){
@@ -59,14 +74,67 @@ var Reveald3 = window.Reveald3 || (function(){
         }
     });
 
+    Reveal.addEventListener('overviewshown', function( event ) {
+        // show 10 slides
+        updateBackgroundSlides(event, true)
+    });
 
-    function initializeAllVisualizations(){
-      const allVizSlides = getAllVizSlides()
+    Reveal.addEventListener('overviewhidden', function( event ) {
+        clearBackgrounds()
+        updateBackgroundSlides(event, false)
+    });
 
+    function clearBackgrounds(){
+      // clear background
+      if (!backgroundSlides) return
+      for (const backgroundSlide of Object.values(backgroundSlides)){
+        const backgroundContent = Reveal.getSlideBackground(backgroundSlide.slide).querySelector('.slide-background-content')
+        backgroundContent.innerHTML = ''
+      } 
+    }
+
+    function updateBackgroundSlides(event, isOverView) {
+      if (!backgroundSlides) return
+      const viewDistance = isOverView
+          ? 10
+          : config.viewDistance
+
+      for (const backgroundSlide of Object.values(backgroundSlides)) {
+          // Determine how far away this slide is from the present
+          let distanceX = Math.abs( ( event.indexh || 0 ) - backgroundSlide.index.h ) || 0;
+          // If the presentation is looped, distance should measure
+          // 1 between the first and last slides
+          if( config.loop ) {
+            distanceX = Math.abs( ( ( event.indexh || 0 ) - backgroundSlide.index.h ) % ( horizontalSlidesLength - viewDistance ) ) || 0;
+          }
+          // Show the horizontal slide if it's within the view distance
+          if( distanceX < viewDistance ) {
+          // if( false ) {
+            const styles = getIframeStyle(backgroundSlide)
+            // add iframe to slide
+            initialize({
+              isBackground: backgroundSlide.isBackground,
+              onCurrentSlide: true,
+              index: backgroundSlide.index,
+              slide: backgroundSlide.slide,
+              container: backgroundSlide.container,
+              file: backgroundSlide.file,
+              preload: backgroundSlide.preload,
+              fragmentsInSlide: backgroundSlide.fragmentsInSlide,
+              iframeStyle: styles.iframeStyle,
+              iframeExtra: styles.iframeExtra
+            }) 
+            // loadSlide( horizontalSlide );
+          }
+        }
+    }
+
+
+    function initializeAllVisualizations(slides){
       const currentSlide = Reveal.getCurrentSlide()
         
       // loop over each slide containing at least one viz container
-      for ( const vizSlide of Object.values(allVizSlides) ) {
+      for ( const vizSlide of Object.values(slides) ) {
         // loop over each viz object in the slide
         for ( const viz of vizSlide.containers ) {
           const styles = getIframeStyle(viz)
@@ -84,9 +152,8 @@ var Reveald3 = window.Reveald3 || (function(){
             iframeExtra: styles.iframeExtra
           })          
         }
-      }    
+      } 
     }
-
 
     function getAllVizSlides() {
       const allVizSlides = Array.from(document.getElementsByClassName('fig-container'))
@@ -102,28 +169,44 @@ var Reveald3 = window.Reveald3 || (function(){
             // create name based on indices of the slide
             const { h, v, f } = Reveal.getIndices(slide)
             const name = `h-${h || null}/v-${v || null}/f-${f || null}`
-            acc[name] = acc[name]
-              ? Object.assign(acc[name], {
-                containers: [...acc[name].containers, {
-                    isBackground: isSection,
-                    container: cur,
-                    file: cur.getAttribute('data-file'),
-                    preload: cur.hasAttribute('data-preload')
+            // store slide in corresponding (backgrounds/slides) category
+            if (isBackground) {
+              // background slides. Only one background possible per slide
+              acc.backgrounds[name] = {
+                slide,
+                index: { h, v },
+                container: cur,
+                isBackground: isSection,
+                file: cur.getAttribute('data-file'),
+                preload: cur.hasAttribute('data-preload'),
+                fragmentsInSlide: getUniqueFragmentIndices(slide)
+              }
+            } else {
+              // regular slides
+              acc.slides[name] = acc.slides[name]
+                ? Object.assign(acc.slides[name], {
+                  containers: [...acc.slides[name].containers, {
+                      isBackground: isSection,
+                      container: cur,
+                      file: cur.getAttribute('data-file'),
+                      preload: cur.hasAttribute('data-preload')
                   }]})
-              : ({ 
-                  index: { h, v },
-                  slide,
-                  containers: [{
-                    isBackground: isBackground,
-                    container: cur,
-                    file: cur.getAttribute('data-file'),
-                    preload: cur.hasAttribute('data-preload')
-                  }],
-                  fragmentsInSlide: getUniqueFragmentIndices(slide)
-                })
+                : ({ 
+                    index: { h, v },
+                    slide,
+                    containers: [{
+                      isBackground: isBackground,
+                      container: cur,
+                      file: cur.getAttribute('data-file'),
+                      preload: cur.hasAttribute('data-preload')
+                    }],
+                    fragmentsInSlide: getUniqueFragmentIndices(slide)
+                  })
+            }
+            
           }
           return acc
-        }, {})
+        }, { backgrounds: {}, slides: {} })
       return allVizSlides
     }
 
@@ -143,8 +226,8 @@ var Reveald3 = window.Reveald3 || (function(){
     const getIframeStyle = viz => {
       const defaultStyle = {
           'margin': '0px',
-          'width': '100vw',
-          'height': '100vh',
+          'width': '100%',
+          'height': '100%',
           'max-width': '100%',
           'max-height': '100%',
           'z-index': 1,
@@ -231,6 +314,9 @@ var Reveald3 = window.Reveald3 || (function(){
         // if an iframe background, put it on the corresponding background slide
         if (isBackground) {
           const backgroundSlide = Reveal.getSlideBackground(slide)
+          // do nothing if iframe already present
+          if (backgroundSlide.querySelector("iframe")) return
+
           const slideBackgroundContent = backgroundSlide.querySelector(".slide-background-content")
           slideBackgroundContent.appendChild(iframe)
         } else {
@@ -239,11 +325,6 @@ var Reveald3 = window.Reveald3 || (function(){
 
         //event to be triggered once iframe load is complete
         iframe.addEventListener("load", function () {
-            if (isBackground) {
-              // make the overflow of the current slide visible to be sure that
-              // all its content will show up
-              slide.style.overflow = "visible"
-            }
 
             const fig = (iframe.contentWindow || iframe.contentDocument);
 
@@ -313,15 +394,6 @@ var Reveald3 = window.Reveald3 || (function(){
             // see https://github.com/gcalmettes/reveal.js-d3/issues/5#issuecomment-443797557
             Reveal.layout()
         }); //onload
-
-        if (isBackground) {
-            //event to be triggered once iframe load is complete
-            iframe.addEventListener("beforeunload", function () {
-                // revert back the style change
-                // NOTE: doesn't seem to be triggered ....
-                slide.style.overflow = "hidden"
-            })
-        }
     }
 
     function getAllIframes(slide){
