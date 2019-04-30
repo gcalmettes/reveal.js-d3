@@ -108,7 +108,7 @@ var Reveald3 = window.Reveald3 || (function(){
             distanceX = Math.abs( ( ( event.indexh || 0 ) - backgroundSlide.index.h ) % ( horizontalSlidesLength - viewDistance ) ) || 0;
           }
           // Show the horizontal slide if it's within the view distance
-          if( distanceX < viewDistance ) {
+          if( ((distanceX < viewDistance) && backgroundSlide.preload) || (distanceX == 0) ) {
           // if( false ) {
             const styles = getIframeStyle(backgroundSlide)
             // add iframe to slide
@@ -124,7 +124,11 @@ var Reveald3 = window.Reveald3 || (function(){
               iframeStyle: styles.iframeStyle,
               iframeExtra: styles.iframeExtra
             }) 
-            // loadSlide( horizontalSlide );
+          } else {
+            // remove background iframe
+            const slideBackground = backgroundSlide.slide.slideBackgroundContentElement
+            const toRemove = slideBackground.querySelector(".iframe-visualization")
+            if (toRemove) toRemove.parentNode.removeChild(toRemove);
           }
         }
     }
