@@ -13,6 +13,14 @@ var Reveald3 = window.Reveald3 || (function(){
           // discarded.
           runLastState: config.reveald3.runLastState == undefined ? !config.reveald3.runLastState : config.reveald3.runLastState, //default true
 
+          // If a special onSlideChanged transition has been set (if for example the visualization
+          // has been preloaded using the data-preload attribute, and you want a specific transition
+          // to happen only when you arrive on the slide), you can choose the delay with which such 
+          // a transition will occur (note that in the case of no data-preload, if no delay is set then
+          // the transition might not occur since the iframe might not be fully loaded yet when the 
+          // function is triggered). // default 0. 
+          onSlideChangedDelay: config.reveald3.onSlideChangedDelay == undefined ? 0 : config.reveald3.onSlideChangedDelay,
+
           // This will prefix the path attributes of the source html paths with the given path.
           // (by default "src" if set to true or with the specified path if string)
           mapPath: typeof(config.reveald3.mapPath) == 'string' ? config.reveald3.mapPath : ( config.reveald3.mapPath ? 'src' : '' ),
@@ -62,20 +70,31 @@ var Reveald3 = window.Reveald3 || (function(){
         if (isOverView) {
           clearBackgrounds()
         }
+        // which direction was the slideChanged ?
+        const { currentSlide, previousSlide } = event
+        const directionBack = isNavigationBack({ currentSlide, previousSlide })
         // create background iframes if needed
         updateBackgroundSlides(event, isOverView)
         // need to run last visualization state?
-        const { currentSlide, previousSlide } = event
-        if (options.runLastState && isNavigationBack({ currentSlide, previousSlide })){
+        if (options.runLastState && directionBack ){
           let allIframes = getAllIframes(currentSlide)
           for (const iframe of allIframes) {
             triggerLastState(iframe)
           }  
         }
+
+        // trigger any onSlideChanged transition
+        if (!directionBack) {
+          let allIframes = getAllIframes(currentSlide)
+          setTimeout(() => {
+            console.log(options.onSlideChangedDelay)
+            triggerOnSlideChangeTransition(allIframes)
+          }, options.onSlideChangedDelay)
+        }
     });
 
     Reveal.addEventListener('overviewshown', function( event ) {
-        // show 10 slides
+        // the background of 10 slides will be shown
         updateBackgroundSlides(event, true)
     });
 
@@ -348,9 +367,24 @@ var Reveald3 = window.Reveald3 || (function(){
             // get all the visualization steps from all the visualizations on the slide
             let nodeList = getAllIframes(slide)
             let allVisualizationSteps = []
+            let onSlideChangeTransition = null
             for (const node of nodeList){
                 const fig = (node.contentWindow || node.contentDocument);
-                if (fig._transitions) allVisualizationSteps.push(fig._transitions)
+                const transitionSteps = fig._transitions 
+                  && fig._transitions.reduce((acc, curr) => {
+                    if ( (typeof(curr.index) === 'number') || (curr.index == undefined) ) {
+                      acc['inSlide'].push(curr)
+                    } else { // if string
+                      acc['onSlideChange'].push(curr)
+                    }
+                    return acc
+                  }, {'onSlideChange': [], 'inSlide': []})
+                if ( transitionSteps && transitionSteps.inSlide.length) {
+                  allVisualizationSteps.push(transitionSteps.inSlide)
+                }
+                if ( transitionSteps && (transitionSteps.onSlideChange.length) && (node === iframe) ) {
+                  onSlideChangeTransition = transitionSteps.onSlideChange[0]
+                }
             }
 
             // get the corresponding data-fragment-index in the slide fragment context
@@ -361,6 +395,9 @@ var Reveald3 = window.Reveald3 || (function(){
             for (let i=0; i<nodeList.length ; i++){
               nodeList[i].transitionSteps = allVizStepsDict[i];
             }
+
+            // add the onSlideChange transition ot be triggered
+            iframe.transitionOnSlideChange = onSlideChangeTransition
 
             // add spans fragments to trigger visualization steps
             const currentSlide = Reveal.getCurrentSlide()
@@ -434,24 +471,18 @@ var Reveald3 = window.Reveald3 || (function(){
     function generateVisualizationStepsIndices(allVisualizationSteps, slideFragmentSteps){
         // add data-fragment-index to missing steps for each viz
         let allVisualizationIndices = []
-        for (let i=0; i<allVisualizationSteps.length; i++){
-            const visualizationSteps = allVisualizationSteps[i]
 
-            let visualizationIndices
-
-            if(visualizationSteps){
-                const nVisualizationSteps = visualizationSteps.length
-
-                visualizationIndices = visualizationSteps.filter(d => d.index>=0).map(d => d.index)
-                if (visualizationIndices.length < nVisualizationSteps) {
-                    const nIndicesToAdd = nVisualizationSteps - visualizationIndices.length
-                    const startIndex = visualizationIndices.length == 0 ? 0 : Math.max.apply(null, visualizationIndices)+1
-                    for (let j=0; j<nIndicesToAdd; j++){
-                        visualizationIndices.push(j+startIndex)
-                    }
+        for (const visualizationSteps of allVisualizationSteps){
+            const nVisualizationSteps = visualizationSteps.length
+            const visualizationIndices = visualizationSteps.filter(d => d.index>=0).map(d => d.index)
+            if (visualizationIndices.length < nVisualizationSteps) {
+                const nIndicesToAdd = nVisualizationSteps - visualizationIndices.length
+                const startIndex = visualizationIndices.length == 0 ? 0 : Math.max.apply(null, visualizationIndices)+1
+                for (let i=0; i<nIndicesToAdd; i++){
+                    visualizationIndices.push(i+startIndex)
                 }
-                allVisualizationIndices.push(visualizationIndices)
             }
+            allVisualizationIndices.push(visualizationIndices)
         }
 
         // some spread operator kungfu techniques to get unique values of data-fragment-index in viz
@@ -518,8 +549,8 @@ var Reveald3 = window.Reveald3 || (function(){
             const allFragments = currentSlide.querySelectorAll('.fragment.visualizationStep')
             if (allFragments.length==0) return
             let allFragmentsIndices = []
-            for (let i=0; i< allFragments.length; i++){
-                allFragmentsIndices.push(parseInt(allFragments[i].getAttribute('data-fragment-index')))
+            for (const fragment of allFragments){
+                allFragmentsIndices.push(parseInt(fragment.getAttribute('data-fragment-index')))
             }
             triggerTransition(iframe, Math.max.apply(null, allFragmentsIndices), 'forward')
         }
@@ -559,15 +590,15 @@ var Reveald3 = window.Reveald3 || (function(){
     function proceed(event) {
         // only proceed if one of the fragments of the step has `fig-transition` class
         let allClassNames = ""
-        for (let i=0; i<event.fragments.length; i++){
-            allClassNames = allClassNames.concat(event.fragments[i].className)
+        for (const fragment of event.fragments) {
+            allClassNames = allClassNames.concat(fragment.className)
         }
         return allClassNames.includes('visualizationStep')
     }
 
     function triggerAllTransitions(allIframes, currentStep, direction){
-        for (let i=0; i<allIframes.length; i++){
-            triggerTransition(allIframes[i], currentStep, direction)
+        for (const iframe of allIframes){
+            triggerTransition(iframe, currentStep, direction)
         }
     }
 
@@ -581,6 +612,14 @@ var Reveald3 = window.Reveald3 || (function(){
                (iframe.transitionSteps[currentStep].transitionBackward || Function)()
             }
         }
+    }
+
+    function triggerOnSlideChangeTransition( allIframes ){
+      for ( const iframe of allIframes ) {
+        if (iframe.transitionOnSlideChange) {
+          (iframe.transitionOnSlideChange.transitionForward || Function)()
+        }
+      }
     }
 
     function handleFragments(event, direction){
