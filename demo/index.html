@@ -84,9 +84,9 @@
         <div class="col-50 no-margin-top">
             <p class="no-margin-top small">
                 <a href='https://bl.ocks.org/mbostock/4165404' target='_blank'>Rainbow worm</a> by Mike Bostock <br>
-                <span class="big">(transition on <span class="warning">1</span> and <span class="warning">3</span>)</span>
+                <span class="big">(transition on <span class="warning">1</span> and <span class="warning">3</span> and automatic transition on slide change)</span>
             </p>
-            <div class="fig-container no-margin-top" data-file="d3-fig/rainbow.html"></div>
+            <div class="fig-container no-margin-top" data-preload data-file="d3-fig/rainbow.html"></div>
         </div>
         <div class="col-50 no-margin-top">
             <p class="no-margin-top small">
@@ -195,6 +195,14 @@ Reveal.initialize({
          // the state the simulation was in when we left the slide. This can be
          // discarded.
          runLastState: true, //default true
+
+         // If a special onSlideChanged transition has been set (if for example the visualization
+         // has been preloaded using the data-preload attribute, and you want a specific transition
+         // to happen only when you arrive on the slide), you can choose the delay with which such 
+         // a transition will occur (note that in the case of no data-preload, if no delay is set then
+         // the transition might not occur since the iframe might not be fully loaded yet when the 
+         // function is triggered). // default 0. 
+         onSlideChangedDelay: 400,
 
          // This will prefix the path attributes of the source html paths with the given path.
          // (by default "src" if set to true or with the specified path if string)
