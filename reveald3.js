@@ -87,7 +87,6 @@ var Reveald3 = window.Reveald3 || (function(){
         if (!directionBack) {
           let allIframes = getAllIframes(currentSlide)
           setTimeout(() => {
-            console.log(options.onSlideChangedDelay)
             triggerOnSlideChangeTransition(allIframes)
           }, options.onSlideChangedDelay)
         }
