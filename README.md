@@ -179,7 +179,7 @@ In addition to the `data-file` and `data-style` attributes (see above), some pro
 To add transitions to a visualization, simply create a global (`var`) variable in the javascript code of your `html` file with the name `_transitions`, and assign to it an array of javascript objects defining the transitions functions for each fragment steps. Each javascript object in the `_transitions` array has to be defined as at least one obligatory `name:value` pair, and two optional `name:value` pairs can also be declared:
 - `transitionForward` (obligatory): defines a function for the transition from the current state to the NEXT state of the visualization
 - `transitionBackward` (optional): defines a specific function to be ran for the transition to the PREVIOUS state of the visualization when user navigates back. If no `transitionBackward` is specified, this will take the `transitionForward` value of the previous step by default (note that you'll still have to define a `transitionBackward` function for the first animation of the visualization since there is no previous animation/transition in this case. See [example](https://github.com/gcalmettes/reveal.js-d3/blob/master/demo/d3-fig/rainbow.html) in the [demo](https://github.com/gcalmettes/reveal.js-d3/tree/master/demo/d3-fig) folder). `transitionBackward` can also take a `"none"` value to specify that no animation/function has to be played for the reverse transition.
-- `index` (optional): defines the `data-fragment-index` step at which the transition has to be triggered. If no `index` is defined, the transitions will be played in the order they appear in the `_transitions` array, with the first one getting the `0` index (first fragment played).
+- `index` (optional): defines the `data-fragment-index` step at which the transition has to be triggered. If no `index` is defined, the transitions will be played in the order they appear in the `_transitions` array, with the first one getting the `0` index (first fragment played). Note that if the value of the index is a string (e.g.: `"onSlideChanged"`) then this transitions will be triggered when the slide comes into view (forward slide changed event) with the delay set by the `onSlideChangedDelay` option defined above.
 
 ```
 var _transitions = [
@@ -194,6 +194,10 @@ Example:
 
 ```
 var _transitions = [
+      {
+        transitionForward: () => recolorize("purple"),
+        index: "onSlideChanged" // will be run when the slide comes into view
+      },
       {
         transitionForward: () => recolorize("yellow"),
         index: 0 // will be run at the data-fragment-index=0 state
@@ -231,6 +235,16 @@ Reveal.initialize({
         // or is a very resource-intensive task or there is no need to
         // retrieve the last state of the visualization).
         runLastState: true, // true/false, default: true
+
+        // If a special onSlideChanged transition has been set (if for example 
+        // the visualization has been preloaded using the data-preload
+        // attribute, and you want a specific transition to happen only when
+        // you arrive on the slide), you can choose the delay (in ms) with
+        // which such a transition will occur (note that in the case of 
+        // no data-preload, if no delay is set then the transition might
+        // not occur since the iframe might not be fully loaded yet when 
+        // the  function is triggered). // default 0. 
+        onSlideChangedDelay: 200,
 
         // This will prefix the path attributes of the source html paths with the given path.
         // (by default "src" if set to true or with the specified path if string)
