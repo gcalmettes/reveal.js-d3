@@ -1,6 +1,6 @@
 {
   "name": "reveald3",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Full integration of animated javascript-based visualizations (D3, vega-lite, semiotic, etc ...) into Reveal.js presentations",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
