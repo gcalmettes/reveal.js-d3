@@ -1,9 +1,9 @@
 <html>
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE11"/>
-    <link rel="stylesheet" href="reveal.js/css/reveal.css">
-    <link rel="stylesheet" href="reveal.js/css/theme/black.css">
-    <link rel="stylesheet" href="reveal.js/lib/css/zenburn.css" />
+    <link rel="stylesheet" href="reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="reveal.js/dist/theme/black.css">
+    <link rel="stylesheet" href="reveal.js/css/zenburn.css" />
     <link rel="stylesheet" href="reveal.js/css/custom-gc.css" />
 </head>
 <body>
@@ -173,12 +173,14 @@
 </div> <!-- slides -->
 </div> <!-- Reveal -->
 
-<script src="reveal.js/js/reveal.js"></script>
+<script src="reveal.js/dist/reveal.js"></script>
+<script src="reveal.js/plugin/reveald3.js"></script>
 <script>
 
 // Full list of configuration options available at:
 // https://github.com/hakimel/reveal.js#configuration
 Reveal.initialize({
+    plugins: [ Reveald3 ],
     controls: false,
     progress: true,
     history: true,
@@ -217,13 +219,6 @@ Reveal.initialize({
          //see: https://github.com/gcalmettes/reveal.js-d3/issues/10
          disableCheckFile: false, //default false,
     },
-
-    // Reveal.js plugins
-    dependencies: [
-
-        { src: '../reveald3.js' },
-
-    ]
 });
 
 </script>

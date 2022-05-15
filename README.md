@@ -20,45 +20,21 @@ The development of this plugin has been inspired by [Reveal.js-d3js-plugin](http
 
 ## Installation
 
-### npm
-
-1. Download and install the package in your project:
-
-```
-npm install --save reveald3
-```
-
-2. Add the plugin to the dependencies in your presentation, as below:
-
-```javascript
-Reveal.initialize({
-    // ...
-
-    dependencies: [
-        // ...
-
-        { src: 'node_modules/reveald3/reveald3.js' }
-    ]
-});
-```
-
-### Manual
-
 1. Copy the file `reveald3.js` into a local folder, i.e. the `plugin/` folder of your Reveal.js presentation.
 
-2. Add the `reveald3` plugin to the presentation dependencies:
+2. Add the `reveald3` plugin to the presentation:
 
 ```javascript
-Reveal.initialize({
-    // ...
-    dependencies: [
-        // ...
-        { src: 'plugin/reveald3.js' },
-        // ...
-    ]
-});
-```
+<script src="plugin/reveald3.js"></script>
 
+<script>
+    Reveal.initialize({
+        // ...
+        plugins: [ Reveald3 ],
+        // ...
+    });
+</script>
+```
 
 
 ## Usage:
